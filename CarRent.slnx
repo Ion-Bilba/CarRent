@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="CarRent.API/CarRent.API.csproj" Id="c92c10a6-4e1d-49e5-b216-11bee8523cf4" />
   <Project Path="CarRent.Application/CarRent.Application.csproj" />
   <Project Path="CarRent.Domain/CarRent.Domain.csproj" />
   <Project Path="CarRent.Infrastructure/CarRent.Infrastructure.csproj" />
