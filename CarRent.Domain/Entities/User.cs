@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace CarRent.Domain.Entities
+{
+    public class User
+    {
+        public Guid Id { get; set; }
+
+        public string FirstName { get; set; }=string.Empty;
+
+        public string LastName { get; set; } = string.Empty;
+
+        public string Email {  get; set; } = string.Empty;
+
+        public string PasswordHash {  get; set; } = string.Empty;
+
+        public string? PhoneNumber {  get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public ICollection<Ad> Ads { get; set; } = new List<Ad>();
+
+        public ICollection<Favorite>Favorites { get; set; }= new List<Favorite>();
+    }
+}
