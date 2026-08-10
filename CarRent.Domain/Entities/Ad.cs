@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarRent.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,11 +19,8 @@ namespace CarRent.Domain.Entities
 
         public decimal Price { get; set; }
 
-        public enum AdType
-        {
-            Rent,
-            Sale
-        }
+        public AdType AdType { get; set; }
+        
 
         public bool IsActive { get; set; }
 

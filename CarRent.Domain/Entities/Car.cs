@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarRent.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,21 +19,11 @@ namespace CarRent.Domain.Entities
 
         public int Mileage { get; set; }
 
-        public enum FuelType
-        {
-            Petrol,
-            Diesel,
-            Hybrid,
-            Electric
-        }
+        public FuelType FuelType { get; set; }
 
         public int EngineCapacity { get; set; }
 
-        public enum Transmission
-        {
-            Manual,
-            Automatic
-        }
+        public Transmission Transmission { get; set; }
 
         public ICollection<Ad> Ads { get; set; } = new List<Ad>();
     }

@@ -35,15 +35,13 @@ namespace CarRent.Infrastructure.Configurations
        .HasConversion<string>() 
        .HasMaxLength(30)        
        .IsRequired();
+
+            builder.Property(c=>c.EngineCapacity).IsRequired();
+
+            builder.Property(c => c.Transmission)
+                .HasConversion<string>()
+                .IsRequired()
+                .HasMaxLength(30);
         }
     }
 }
-/*
- * 2. CarConfiguration
-
-FuelType: Obligatoriu, lungime maximă 30 caractere.
-
-EngineCapacity: Obligatoriu.
-
-Transmission: Obligatoriu, lungime maximă 30 caractere.
- */

@@ -36,9 +36,6 @@ namespace CarRent.Infrastructure.Configurations
                 .HasMaxLength(20);
 
             builder.Property(c=>c.CreatedAt).IsRequired();
-
-               
-
         }
     }
 }
