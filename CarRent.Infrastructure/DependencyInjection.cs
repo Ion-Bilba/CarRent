@@ -1,4 +1,5 @@
-﻿using CarRent.Infrastructure.Persistence;
+﻿using CarRent.Application.Abstractions;
+using CarRent.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,8 @@ namespace CarRent.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString,
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+
+            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
             return services;
         }

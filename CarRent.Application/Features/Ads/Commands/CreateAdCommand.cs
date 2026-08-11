@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CarRent.Domain.Enums;
 using MediatR;
 
 namespace CarRent.Application.Features.Ads.Commands
@@ -12,6 +13,6 @@ namespace CarRent.Application.Features.Ads.Commands
          string Title,
          string Description,
          decimal Price,
-         string AdType
+         AdType AdType
      ) : IRequest<Guid>;
 }

@@ -1,30 +1,29 @@
-using CarRent.Application.Abstractions;
+using CarRent.Application;
 using CarRent.Infrastructure;
-using CarRent.Infrastructure.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Adaugă serviciile din Application și Infrastructure
+builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-// 3. Înregistrare MediatR (scanează proiectul Application după Handlere)
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(IApplicationDbContext).Assembly));
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// Configurare Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // Activează Swagger JSON și Interfața Grafică (UI)
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
