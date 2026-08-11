@@ -1,4 +1,5 @@
-﻿using CarRent.Domain.Entities;
+﻿using CarRent.Application.Abstractions;
+using CarRent.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace CarRent.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext,IApplicationDbContext
     {
         public DbSet<User> Users => Set<User>();
         public DbSet<Car> Cars => Set<Car>();

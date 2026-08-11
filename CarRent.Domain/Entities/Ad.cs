@@ -20,13 +20,13 @@ namespace CarRent.Domain.Entities
         public decimal Price { get; set; }
 
         public AdType AdType { get; set; }
-        
 
-        public bool IsActive { get; set; }
+
+        public bool IsActive { get; set; } = true;
 
         public int Views { get; set; }
 
-        public DateTime CreatedAt { get; set; } 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
