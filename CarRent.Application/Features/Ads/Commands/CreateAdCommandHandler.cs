@@ -28,7 +28,7 @@ namespace CarRent.Application.Features.Ads.Commands
                 throw new KeyNotFoundException($"Mașina cu ID-ul {request.CarId} nu există.");
             }
 
-            // 2. Verificăm dacă utilizatorul există în baza de date
+           
             var userExists = await _context.Users
                 .AnyAsync(u => u.Id == request.UserId, cancellationToken);
 

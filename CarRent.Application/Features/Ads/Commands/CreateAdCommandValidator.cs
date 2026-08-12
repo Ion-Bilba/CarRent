@@ -19,7 +19,7 @@ namespace CarRent.Application.Features.Ads.Commands
 
             RuleFor(c => c.Price).GreaterThan(0);
 
-            RuleFor(c => c.AdType).IsInEnum().WithMessage("Tipul anunțului este obligatoriu");
+            RuleFor(c => c.AdType).IsInEnum().WithMessage("Tipul anunțului este invalid");
 
             RuleFor(c => c.CarId).NotEmpty().WithMessage("ID-ul mașinii este obligatoriu.");
 
