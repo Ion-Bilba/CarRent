@@ -1,12 +1,15 @@
+using CarRent.API.Middlewares;
 using CarRent.Application;
 using CarRent.Infrastructure;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adaugă serviciile din Application și Infrastructure
+
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+builder.Services.AddControllers();
 
 builder.Services.AddControllers()
      .AddJsonOptions(options =>
@@ -15,20 +18,22 @@ builder.Services.AddControllers()
              new JsonStringEnumConverter());
      });
 
-// Configurare Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+//https://localhost:7088/swagger
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    // Activează Swagger JSON și Interfața Grafică (UI)
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ValidationExceptionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 

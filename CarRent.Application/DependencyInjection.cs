@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using CarRent.Application.Behaviors;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CarRent.Application;
@@ -9,8 +10,13 @@ public static class DependencyInjection
     {
         var assembly = typeof(DependencyInjection).Assembly;
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
-        services.AddValidatorsFromAssembly(assembly);
+        services.AddMediatR (cfg =>
+        { cfg.RegisterServicesFromAssembly(assembly);
+
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+
+            services.AddValidatorsFromAssembly(assembly); 
 
         return services;
     }

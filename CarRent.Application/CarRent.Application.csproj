@@ -12,8 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Features\Ads\Queries\" />
     <Folder Include="Features\Cars\Commands\" />
     <Folder Include="Features\Cars\Queries\" />
     <Folder Include="Features\Favorites\Commands\" />
