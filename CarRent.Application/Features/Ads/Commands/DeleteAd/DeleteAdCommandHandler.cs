@@ -25,7 +25,7 @@ namespace CarRent.Application.Features.Ads.Commands.DeleteAd
                 return false;
             }
 
-            _context.Ads.Remove(ad);
+            ad.IsActive = false;
 
             await _context.SaveChangesAsync(cancellationToken);
             return true;
