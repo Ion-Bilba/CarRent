@@ -135,8 +135,10 @@ namespace CarRent.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("TractionType")
-                        .HasColumnType("int");
+                    b.Property<string>("TractionType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Transmission")
                         .IsRequired()

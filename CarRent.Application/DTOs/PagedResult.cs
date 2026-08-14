@@ -1,31 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CarRent.Application.DTOs
+﻿public class PagedResult<T>
 {
-    public class PagedResult<T>
+    public List<T> Items { get; set; }
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+    public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+    public bool HasNextPages => PageNumber < TotalPages;
+    public bool HasPreviousPages => PageNumber > 1;
+
+    public PagedResult(List<T> items, int pageNumber, int pageSize, int totalCount)
     {
-        public List<T> Items { get; set; } = new();
-
-        public int PageNumber { get; set; }
-
-        public int PageSize { get; set; }
-
-        public int TotalCount { get; set; }
-
-        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
-
-        public bool HasNextPages => PageNumber < TotalPages;
-
-        public bool HasPreviosPages => PageNumber > 1;
-
-        public PagedResult(List<T> items, int pageNumber, int pageSize, int totalCount)
-        {
-            Items = items;
-            PageNumber = pageNumber;
-            PageSize = pageSize;
-            TotalCount = totalCount;
-        }
+        Items = items;
+        PageNumber = pageNumber;
+        PageSize = pageSize;
+        TotalCount = totalCount;
     }
 }

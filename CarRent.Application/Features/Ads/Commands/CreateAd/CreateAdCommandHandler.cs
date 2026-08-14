@@ -7,7 +7,7 @@ using CarRent.Domain.Enums;
 using CarRent.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace CarRent.Application.Features.Ads.Commands
+namespace CarRent.Application.Features.Ads.Commands.CreateAd
 {
     public class CreateAdCommandHandler : IRequestHandler<CreateAdCommand, Guid>
     {

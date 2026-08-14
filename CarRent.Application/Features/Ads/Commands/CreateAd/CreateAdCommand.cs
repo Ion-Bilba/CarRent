@@ -4,7 +4,7 @@ using System.Text;
 using CarRent.Domain.Enums;
 using MediatR;
 
-namespace CarRent.Application.Features.Ads.Commands
+namespace CarRent.Application.Features.Ads.Commands.CreateAd
 {
     public record CreateAdCommand
      (

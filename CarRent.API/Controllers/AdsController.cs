@@ -1,5 +1,5 @@
 ﻿using CarRent.Application.DTOs;
-using CarRent.Application.Features.Ads.Commands;
+using CarRent.Application.Features.Ads.Commands.CreateAd;
 using CarRent.Application.Features.Ads.Commands.DeleteAd;
 using CarRent.Application.Features.Ads.Commands.UpdateAdCommand;
 using CarRent.Application.Features.Ads.Queries;

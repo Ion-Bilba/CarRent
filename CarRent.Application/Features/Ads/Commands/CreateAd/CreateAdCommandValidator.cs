@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CarRent.Application.Features.Ads.Commands
+namespace CarRent.Application.Features.Ads.Commands.CreateAd
 {
     public class CreateAdCommandValidator  : AbstractValidator<CreateAdCommand>
     {

@@ -2,7 +2,6 @@
 using CarRent.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CarRent.Application.Features.Ads.Queries;
 
@@ -17,25 +16,32 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
 
     public async Task<PagedResult<AdDto>> Handle(GetAdsQuery request, CancellationToken cancellationToken)
     {
-        var ad= _context.Ads
-            .AsNoTracking().Where(c => c.IsActive);
+        var ad = _context.Ads
+            .AsNoTracking()
+            .Where(c => c.IsActive);
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             var term = request.SearchTerm.Trim().ToLower();
 
-            ad= ad.Where(c=>c.Title.ToLower().Contains(term) || c.Description.ToLower().Contains(term));    
-
+            ad = ad.Where(c =>
+                EF.Functions.Like(c.Title, $"%{term}%") ||
+                EF.Functions.Like(c.Description, $"%{term}%"));
         }
 
-        if(request.MaxPrice.HasValue)
+        if (request.MaxPrice.HasValue)
         {
-            ad=ad.Where(c=>c.Price<=request.MaxPrice.Value);
+            ad = ad.Where(c => c.Price <= request.MaxPrice.Value);
+        }
+
+        if (request.MinPrice.HasValue)
+        {
+            ad = ad.Where(c => c.Price >= request.MinPrice.Value);
         }
 
         if (request.AdType.HasValue)
         {
-            ad=ad.Where(c=>c.AdType==request.AdType.Value);
+            ad = ad.Where(c => c.AdType == request.AdType.Value);
         }
 
         if (request.TractionType.HasValue)
@@ -44,10 +50,13 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
         }
 
         var totalcount = await ad.CountAsync(cancellationToken);
+        var pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
+        var pageSize = request.PageSize > 0 ? request.PageSize : 10;
 
-        var items = await ad.OrderByDescending(C => C.UpdatedAt)
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
+        var items = await ad
+            .OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .Select(ad => new AdDto
             {
                 Id = ad.Id,
@@ -61,10 +70,15 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
                 IsActive = ad.IsActive,
                 Views = ad.Views,
                 CreatedAt = ad.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
 
-            }).ToListAsync(cancellationToken);
 
-        return new PagedResult<AdDto>(items, totalcount,request.PageNumber,request.PageSize);
-            
+        return new PagedResult<AdDto>(
+    items: items,
+    pageNumber: pageNumber,     
+    pageSize: pageSize,         
+    totalCount: totalcount      
+);
     }
 }

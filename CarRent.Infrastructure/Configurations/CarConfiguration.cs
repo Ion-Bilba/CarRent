@@ -42,6 +42,11 @@ namespace CarRent.Infrastructure.Configurations
                 .HasConversion<string>()
                 .IsRequired()
                 .HasMaxLength(30);
+
+            builder.Property(c => c.TractionType)
+    .HasConversion<string>()
+    .HasMaxLength(30)
+    .IsRequired();
         }
     }
 }

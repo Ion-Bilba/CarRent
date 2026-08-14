@@ -31,7 +31,7 @@ namespace CarRent.Application.Features.Ads.Commands.UpdateAdCommand
             ad.Title = request.Title;
             ad.Description = request.Description;
             ad.Price = request.Price;
-                ad.AdType = request.AdType;
+            ad.AdType = request.AdType;
 
             await _context.SaveChangesAsync(cancellationToken);
             return true;

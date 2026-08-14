@@ -15,10 +15,11 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
         }
         public async Task<AdDto?> Handle(GetAdByIdQuery request, CancellationToken cancellationToken)
         {
-            var ad = await  _context.Ads
-                 .FirstOrDefaultAsync(c => c.Id==request.Id, cancellationToken);
-           
-                 if(ad==null)
+            var ad = await _context.Ads
+     .Include(c => c.Car)
+     .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+
+            if (ad==null)
             {
                 return null;
             }
@@ -36,7 +37,8 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
                 AdType = ad.AdType,
                 IsActive = ad.IsActive,
                 Views = ad.Views,
-                CreatedAt = ad.CreatedAt
+                CreatedAt = ad.CreatedAt,
+                TractionType=ad.Car.TractionType
             };
 
 
