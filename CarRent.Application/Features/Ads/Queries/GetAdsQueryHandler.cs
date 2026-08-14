@@ -2,6 +2,7 @@
 using CarRent.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CarRent.Application.Features.Ads.Queries;
 
@@ -37,6 +38,11 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
             ad=ad.Where(c=>c.AdType==request.AdType.Value);
         }
 
+        if (request.TractionType.HasValue)
+        {
+            ad = ad.Where(c => c.Car.TractionType == request.TractionType.Value);
+        }
+
         var totalcount = await ad.CountAsync(cancellationToken);
 
         var items = await ad.OrderByDescending(C => C.UpdatedAt)
@@ -51,6 +57,7 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
                 Description = ad.Description,
                 Price = ad.Price,
                 AdType = ad.AdType,
+                TractionType = ad.Car.TractionType,
                 IsActive = ad.IsActive,
                 Views = ad.Views,
                 CreatedAt = ad.CreatedAt

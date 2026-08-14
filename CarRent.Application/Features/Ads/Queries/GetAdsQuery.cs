@@ -11,6 +11,7 @@ namespace CarRent.Application.Features.Ads.Queries
     decimal? MinPrice = null,
     decimal? MaxPrice = null,
     AdType? AdType = null,
+    TractionType? TractionType = null,
     int PageNumber = 1,
     int PageSize = 10
     ): IRequest<PagedResult<AdDto>>;

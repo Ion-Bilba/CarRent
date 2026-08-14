@@ -13,6 +13,7 @@ namespace CarRent.Application.DTOs
         public string Description {  get; set; }=string.Empty;
         public decimal Price { get; set; }
         public AdType AdType { get; set; }
+        public TractionType TractionType { get; set; }
         public bool IsActive { get; set; }
         public int Views {  get; set; }
         public DateTime CreatedAt { get; set; }

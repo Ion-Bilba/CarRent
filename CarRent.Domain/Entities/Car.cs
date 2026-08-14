@@ -1,7 +1,5 @@
 ﻿using CarRent.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace CarRent.Domain.Entities
 {
@@ -25,6 +23,7 @@ namespace CarRent.Domain.Entities
 
         public Transmission Transmission { get; set; }
 
+        public TractionType TractionType { get; set; }
         public ICollection<Ad> Ads { get; set; } = new List<Ad>();
     }
 }
