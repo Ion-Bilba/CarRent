@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CarRent.Application.Features.Ads.Queries;
 
-public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, List<AdDto>>
+public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -14,10 +14,34 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, List<AdDto>>
         _context = context;
     }
 
-    public async Task<List<AdDto>> Handle(GetAdsQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<AdDto>> Handle(GetAdsQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Ads
-            .AsNoTracking() 
+        var ad= _context.Ads
+            .AsNoTracking().Where(c => c.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var term = request.SearchTerm.Trim().ToLower();
+
+            ad= ad.Where(c=>c.Title.ToLower().Contains(term) || c.Description.ToLower().Contains(term));    
+
+        }
+
+        if(request.MaxPrice.HasValue)
+        {
+            ad=ad.Where(c=>c.Price<=request.MaxPrice.Value);
+        }
+
+        if (request.AdType.HasValue)
+        {
+            ad=ad.Where(c=>c.AdType==request.AdType.Value);
+        }
+
+        var totalcount = await ad.CountAsync(cancellationToken);
+
+        var items = await ad.OrderByDescending(C => C.UpdatedAt)
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
             .Select(ad => new AdDto
             {
                 Id = ad.Id,
@@ -27,10 +51,13 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, List<AdDto>>
                 Description = ad.Description,
                 Price = ad.Price,
                 AdType = ad.AdType,
-                IsActive=ad.IsActive,
-                Views=ad.Views,
-                CreatedAt=ad.CreatedAt
-            })
-            .ToListAsync(cancellationToken);
+                IsActive = ad.IsActive,
+                Views = ad.Views,
+                CreatedAt = ad.CreatedAt
+
+            }).ToListAsync(cancellationToken);
+
+        return new PagedResult<AdDto>(items, totalcount,request.PageNumber,request.PageSize);
+            
     }
 }

@@ -29,9 +29,9 @@ public class AdsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AdDto>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResult<AdDto>>> GetAll([FromQuery] GetAdsQuery query,CancellationToken cancellationToken)
     {
-        var ads = await _mediator.Send(new GetAdsQuery(), cancellationToken);
+        var ads = await _mediator.Send( query, cancellationToken);
         return Ok(ads);
     }
 

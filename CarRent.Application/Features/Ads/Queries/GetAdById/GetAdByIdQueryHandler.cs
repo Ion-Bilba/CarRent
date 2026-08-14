@@ -1,11 +1,7 @@
 ﻿using CarRent.Application.Abstractions;
 using CarRent.Application.DTOs;
-using CarRent.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CarRent.Application.Features.Ads.Queries.GetAdById
 {
@@ -19,24 +15,30 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
         }
         public async Task<AdDto?> Handle(GetAdByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Ads.AsNoTracking()
-                 .Where(ad => ad.Id == request.Id)
-                 .Select(ad => new AdDto
-                 {
-                     Id = ad.Id,
-                     CarId = ad.CarId,
-                     UserId = ad.UserId,
-                     Title = ad.Title,
-                     Description = ad.Description,
-                     Price = ad.Price,
-                     AdType = ad.AdType,
-                     IsActive = ad.IsActive,
-                     Views = ad.Views,
-                     CreatedAt = ad.CreatedAt
+            var ad = await  _context.Ads
+                 .FirstOrDefaultAsync(c => c.Id==request.Id, cancellationToken);
+           
+                 if(ad==null)
+            {
+                return null;
+            }
+            ad.Views++;
+            await _context.SaveChangesAsync(cancellationToken);
 
+            return new AdDto
+            {
+                Id = ad.Id,
+                CarId = ad.CarId,
+                UserId = ad.UserId,
+                Title = ad.Title,
+                Description = ad.Description,
+                Price = ad.Price,
+                AdType = ad.AdType,
+                IsActive = ad.IsActive,
+                Views = ad.Views,
+                CreatedAt = ad.CreatedAt
+            };
 
-                 })
-                 .FirstOrDefaultAsync(cancellationToken);
 
 
         }
