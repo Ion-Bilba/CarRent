@@ -3,7 +3,7 @@ using CarRent.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace CarRent.Application.Features.Ads.Queries;
+namespace CarRent.Application.Features.Ads.Queries.GetAdsQuery;
 
 public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto>>
 {

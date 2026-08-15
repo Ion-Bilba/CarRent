@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRent.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260814122800_AddDriveTypeToCar")]
-    partial class AddDriveTypeToCar
+    [Migration("20260815070653_AddCarUserRelation")]
+    partial class AddCarUserRelation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,9 +117,6 @@ namespace CarRent.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("CarDriveType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -141,15 +138,25 @@ namespace CarRent.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("TractionType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
                     b.Property<string>("Transmission")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Cars", (string)null);
                 });
@@ -249,6 +256,17 @@ namespace CarRent.Infrastructure.Migrations
                     b.Navigation("Ad");
                 });
 
+            modelBuilder.Entity("CarRent.Domain.Entities.Car", b =>
+                {
+                    b.HasOne("CarRent.Domain.Entities.User", "User")
+                        .WithMany("Cars")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CarRent.Domain.Entities.Favorite", b =>
                 {
                     b.HasOne("CarRent.Domain.Entities.Ad", "Ad")
@@ -283,6 +301,8 @@ namespace CarRent.Infrastructure.Migrations
             modelBuilder.Entity("CarRent.Domain.Entities.User", b =>
                 {
                     b.Navigation("Ads");
+
+                    b.Navigation("Cars");
 
                     b.Navigation("Favorites");
                 });

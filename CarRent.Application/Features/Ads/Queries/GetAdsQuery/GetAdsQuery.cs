@@ -3,7 +3,7 @@ using CarRent.Application.DTOs;
 using CarRent.Domain.Enums;
 using MediatR;
 
-namespace CarRent.Application.Features.Ads.Queries
+namespace CarRent.Application.Features.Ads.Queries.GetAdsQuery
 {
    public record GetAdsQuery 
     (

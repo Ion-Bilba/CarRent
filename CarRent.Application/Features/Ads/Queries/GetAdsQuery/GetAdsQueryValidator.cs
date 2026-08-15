@@ -1,7 +1,6 @@
-﻿using CarRent.Application.Features.Ads.Queries;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace CarRent.Application.Features.Ads.Queries;
+namespace CarRent.Application.Features.Ads.Queries.GetAdsQuery;
 
 public class GetAdsQueryValidator : AbstractValidator<GetAdsQuery>
 {

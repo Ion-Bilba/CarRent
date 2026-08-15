@@ -15,6 +15,11 @@ namespace CarRent.Infrastructure.Configurations
             builder.ToTable("Cars");
             builder.HasKey(x => x.Id);
 
+            builder.HasOne(c => c.User)
+    .WithMany(c => c.Cars)
+    .HasForeignKey(c => c.UserId)
+    .OnDelete(DeleteBehavior.Cascade);
+
             builder.Property(C=>C.Brand)
                 .IsRequired()
                 .HasMaxLength(50);

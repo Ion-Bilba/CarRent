@@ -27,7 +27,6 @@ namespace CarRent.Application.Features.Ads.Commands.UpdateAdCommand
                 return false;
             }
 
-            ad.Id = request.Id;
             ad.Title = request.Title;
             ad.Description = request.Description;
             ad.Price = request.Price;

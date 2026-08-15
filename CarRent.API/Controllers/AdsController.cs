@@ -1,9 +1,10 @@
 ﻿using CarRent.Application.DTOs;
 using CarRent.Application.Features.Ads.Commands.CreateAd;
 using CarRent.Application.Features.Ads.Commands.DeleteAd;
+using CarRent.Application.Features.Ads.Commands.UpdateAd;
 using CarRent.Application.Features.Ads.Commands.UpdateAdCommand;
-using CarRent.Application.Features.Ads.Queries;
 using CarRent.Application.Features.Ads.Queries.GetAdById;
+using CarRent.Application.Features.Ads.Queries.GetAdsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 namespace CarRent.API.Controllers;
@@ -35,23 +36,29 @@ public class AdsController : ControllerBase
         return Ok(ads);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, UpdateAdCommand command, CancellationToken cancellationToken)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAdRequest request, CancellationToken cancellationToken)
     {
-        if (id != command.Id)
-        {
-            return BadRequest("ID-ul din URL nu se potrivește cu ID-ul din corpul cererii.");
-        }
+        var command = new UpdateAdCommand(
+            id,
+            request.Title,
+            request.Description,
+            request.Price,
+            request.AdType
+            
+        );
 
-        var result = await _mediator.Send(command, cancellationToken);
-        if (!result)
+        var isUpdated = await _mediator.Send(command, cancellationToken);
+
+        if (!isUpdated)
         {
             return NotFound($"Anunțul cu ID-ul {id} nu a fost găsit.");
         }
+
         return NoContent();
     }
 
-    [HttpDelete("{Id}")]
+    [HttpDelete("{Id:guid}")]
     public async Task<IActionResult> Delete(Guid Id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new DeleteAdCommand(Id), cancellationToken);
@@ -63,7 +70,7 @@ public class AdsController : ControllerBase
 
         return NoContent();
     }
-    [HttpGet("{Id}")]
+    [HttpGet("{Id:guid}")]
     public async Task<IActionResult>GetById (Guid Id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetAdByIdQuery(Id), cancellationToken);

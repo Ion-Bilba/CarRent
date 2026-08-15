@@ -6,30 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CarRent.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class AddCarUserRelation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Cars",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Brand = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Mileage = table.Column<int>(type: "int", nullable: false),
-                    FuelType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    EngineCapacity = table.Column<int>(type: "int", nullable: false),
-                    Transmission = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cars", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -45,6 +26,33 @@ namespace CarRent.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cars",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Mileage = table.Column<int>(type: "int", nullable: false),
+                    FuelType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    EngineCapacity = table.Column<int>(type: "int", nullable: false),
+                    Transmission = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    TractionType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cars", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cars_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -139,6 +147,11 @@ namespace CarRent.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Ads_UserId",
                 table: "Ads",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cars_UserId",
+                table: "Cars",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(

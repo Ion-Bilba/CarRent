@@ -145,10 +145,15 @@ namespace CarRent.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Cars", (string)null);
                 });
@@ -248,6 +253,17 @@ namespace CarRent.Infrastructure.Migrations
                     b.Navigation("Ad");
                 });
 
+            modelBuilder.Entity("CarRent.Domain.Entities.Car", b =>
+                {
+                    b.HasOne("CarRent.Domain.Entities.User", "User")
+                        .WithMany("Cars")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CarRent.Domain.Entities.Favorite", b =>
                 {
                     b.HasOne("CarRent.Domain.Entities.Ad", "Ad")
@@ -282,6 +298,8 @@ namespace CarRent.Infrastructure.Migrations
             modelBuilder.Entity("CarRent.Domain.Entities.User", b =>
                 {
                     b.Navigation("Ads");
+
+                    b.Navigation("Cars");
 
                     b.Navigation("Favorites");
                 });

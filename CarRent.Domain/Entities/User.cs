@@ -20,6 +20,8 @@ namespace CarRent.Domain.Entities
 
         public DateTime CreatedAt { get; set; }
 
+        public ICollection<Car> Cars { get; set; } = new List<Car>();
+
         public ICollection<Ad> Ads { get; set; } = new List<Ad>();
 
         public ICollection<Favorite>Favorites { get; set; }= new List<Favorite>();

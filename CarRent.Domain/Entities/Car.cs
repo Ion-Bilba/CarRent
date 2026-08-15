@@ -7,6 +7,8 @@ namespace CarRent.Domain.Entities
     {
         public Guid Id { get; set; }
 
+        public Guid UserId { get; set; }
+
         public string Brand { get; set; } = string.Empty;
 
         public string Model { get; set; } = string.Empty;
@@ -24,6 +26,8 @@ namespace CarRent.Domain.Entities
         public Transmission Transmission { get; set; }
 
         public TractionType TractionType { get; set; }
+
+        public User User { get; set; } = null!;
         public ICollection<Ad> Ads { get; set; } = new List<Ad>();
     }
 }
