@@ -12,7 +12,8 @@ namespace CarRent.Application.Abstractions
         DbSet<Ad> Ads { get; }
         DbSet<Car> Cars { get; }
         DbSet<User> Users { get; }
-        DbSet<Favorite> Favorites { get; }
+        DbSet<Favorite> Favorites { get;}
+        DbSet<AdImage> AdImages { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

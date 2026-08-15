@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <Compile Remove="Features\AdImages\Commands\DeleteAdImage\DeleteAdImageCommandHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CarRent.Domain\CarRent.Domain.csproj" />
   </ItemGroup>
 
@@ -12,10 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Favorites\Commands\" />
-    <Folder Include="Features\Favorites\Queries\" />
     <Folder Include="Features\Users\Commands\" />
     <Folder Include="Features\Users\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Features\AdImages\Commands\DeleteAdImage\DeleteAdImageCommandHandler.cs" />
   </ItemGroup>
 
   <PropertyGroup>
