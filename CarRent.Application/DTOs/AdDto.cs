@@ -17,8 +17,9 @@ namespace CarRent.Application.DTOs
         public bool IsActive { get; set; }
         public int Views {  get; set; }
         public DateTime CreatedAt { get; set; }
-        
-        //public List<AdImageDto>AdImages {get; set;}= new  ();
+        public string? MainImageUrl { get; set; }
+
+        public List<AdImageDto>AdImages {get; set;}= new List<AdImageDto>();
     }
     
 }

@@ -16,13 +16,15 @@ public class ValidationExceptionMiddleware
     {
         try
         {
-
             await _next(context);
         }
         catch (ValidationException ex)
         {
-
             await HandleValidationExceptionAsync(context, ex);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            await HandleNotFoundExceptionAsync(context, ex);
         }
     }
 
@@ -43,6 +45,22 @@ public class ValidationExceptionMiddleware
             status = StatusCodes.Status400BadRequest,
             title = "Validation Failed",
             errors = errors
+        };
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+    }
+
+    private static Task HandleNotFoundExceptionAsync(HttpContext context, KeyNotFoundException exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+
+        var response = new
+        {
+            status = StatusCodes.Status404NotFound,
+            title = "Not Found",
+            detail = exception.Message
         };
 
         var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

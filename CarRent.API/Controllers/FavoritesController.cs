@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using CarRent.Application.DTOs;
+using CarRent.Application.Features.Favorites.Commands.AddFavorite;
+using CarRent.Application.Features.Favorites.Commands.DeleteFavorite;
+using CarRent.Application.Features.Favorites.Queries.GetMyFavorites;
+using CarRent.Application.Features.Favorites.Queries.IsFavorite;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CarRent.Api.Controllers
+{
+    [ApiController]
+    [Route("api/users/{userId:guid}/favorites")]
+    public class FavoritesController : ControllerBase
+    {
+        private readonly ISender _mediator;
+
+        public FavoritesController(ISender mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<AdDto>>> GetMyFavorites(Guid userId, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetMyFavoritesQuery(userId), cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("{adId:guid}/status")]
+        public async Task<ActionResult<bool>> IsFavorite(Guid userId, Guid adId, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new IsFavoriteQuery(userId, adId), cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("{adId:guid}")]
+        public async Task<IActionResult> Add(Guid userId, Guid adId, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new AddFavoriteCommand(userId, adId), cancellationToken);
+            return Ok();
+        }
+
+        [HttpDelete("{adId:guid}")]
+        public async Task<IActionResult> Delete(Guid userId, Guid adId, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new DeleteFavoriteCommand(userId, adId), cancellationToken);
+            return NoContent();
+        }
+    }
+}

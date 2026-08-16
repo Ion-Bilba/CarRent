@@ -12,7 +12,7 @@ namespace CarRent.Domain.Entities
 
         public Guid AdId { get; set; }  
 
-        public DateTime SavedAt { get; set; }
+        public DateTime SavedAt { get; set; } = DateTime.UtcNow;
 
         public User User { get; set; } = null!;
 

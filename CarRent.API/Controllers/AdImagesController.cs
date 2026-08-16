@@ -1,7 +1,9 @@
-﻿using CarRent.Application.Features.AdImages.Commands.AddAdImage;
+﻿using CarRent.Application.DTOs;
+using CarRent.Application.Features.AdImages.Commands.AddAdImage;
 using CarRent.Application.Features.AdImages.Commands.DeleteAdImage;
 using CarRent.Application.Features.AdImages.Commands.UpdateAdImage;
-using CarRent.Application.Features.AdImages.Queries.GetAdImagesByAdId;
+using CarRent.Application.Features.AdImages.Queries;
+using CarRent.Application.Features.AdImages.Queries.GetImagesByAdIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,7 +26,7 @@ namespace CarRent.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetByAd([FromRoute] Guid adId, CancellationToken cancellationToken)
         {
-            var images = await _mediator.Send(new GetAdImagesByAdIdQuery(adId), cancellationToken);
+            var images = await _mediator.Send(new GetImagesByAdIdQuery(adId), cancellationToken);
             return Ok(images);
         }
 

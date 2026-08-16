@@ -1,11 +1,12 @@
-﻿using CarRent.Application.Abstractions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using CarRent.Application.Abstractions;
 using CarRent.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
 {
@@ -20,7 +21,6 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
 
         public async Task<Guid> Handle(AddAdImageCommand request, CancellationToken cancellationToken)
         {
-           
             var ad = await _context.Ads
                 .FirstOrDefaultAsync(a => a.Id == request.AdId, cancellationToken);
 
@@ -29,7 +29,6 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new KeyNotFoundException($"Anunțul cu ID-ul {request.AdId} nu există.");
             }
 
-            
             var userExists = await _context.Users
                 .AnyAsync(u => u.Id == ad.UserId, cancellationToken);
 
@@ -38,7 +37,6 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new KeyNotFoundException($"Utilizatorul asociat acestui anunț (ID: {ad.UserId}) nu există.");
             }
 
-            
             var currentImagesCount = await _context.AdImages
                 .CountAsync(i => i.AdId == request.AdId, cancellationToken);
 
@@ -47,12 +45,20 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new InvalidOperationException("Un anunț nu poate avea mai mult de 20 de imagini.");
             }
 
+            var maxOrder = await _context.AdImages
+                .Where(i => i.AdId == request.AdId)
+                .MaxAsync(i => (int?)i.DisplayOrder, cancellationToken) ?? 0;
+
+            var displayOrder = request.Request.DisplayOrder > 0
+                ? request.Request.DisplayOrder
+                : maxOrder + 1;
+
             var adImage = new AdImage
             {
                 Id = Guid.NewGuid(),
                 AdId = request.AdId,
                 ImageUrl = request.Request.ImageUrl,
-                DisplayOrder = request.Request.DisplayOrder
+                DisplayOrder = displayOrder
             };
 
             _context.AdImages.Add(adImage);
