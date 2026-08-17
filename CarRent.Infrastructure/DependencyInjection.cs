@@ -1,5 +1,6 @@
 ﻿using CarRent.Application.Abstractions;
 using CarRent.Infrastructure.Persistence;
+using CarRent.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ namespace CarRent.Infrastructure
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-
+            services.AddScoped<IFileStorageService, LocalFileStorageService>();
             return services;
         }
     }

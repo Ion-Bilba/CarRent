@@ -13,10 +13,12 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
     public class AddAdImageCommandHandler : IRequestHandler<AddAdImageCommand, Guid>
     {
         private readonly IApplicationDbContext _context;
+        private readonly IFileStorageService _fileStorageService;
 
-        public AddAdImageCommandHandler(IApplicationDbContext context)
+        public AddAdImageCommandHandler(IApplicationDbContext context, IFileStorageService fileStorageService)
         {
             _context = context;
+            _fileStorageService = fileStorageService;
         }
 
         public async Task<Guid> Handle(AddAdImageCommand request, CancellationToken cancellationToken)
@@ -29,14 +31,6 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new KeyNotFoundException($"Anunțul cu ID-ul {request.AdId} nu există.");
             }
 
-            var userExists = await _context.Users
-                .AnyAsync(u => u.Id == ad.UserId, cancellationToken);
-
-            if (!userExists)
-            {
-                throw new KeyNotFoundException($"Utilizatorul asociat acestui anunț (ID: {ad.UserId}) nu există.");
-            }
-
             var currentImagesCount = await _context.AdImages
                 .CountAsync(i => i.AdId == request.AdId, cancellationToken);
 
@@ -44,6 +38,8 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
             {
                 throw new InvalidOperationException("Un anunț nu poate avea mai mult de 20 de imagini.");
             }
+
+            var imageUrl = await _fileStorageService.SaveFileAsync(request.Request.File, "images", cancellationToken);
 
             var maxOrder = await _context.AdImages
                 .Where(i => i.AdId == request.AdId)
@@ -57,7 +53,7 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
             {
                 Id = Guid.NewGuid(),
                 AdId = request.AdId,
-                ImageUrl = request.Request.ImageUrl,
+                ImageUrl = imageUrl,
                 DisplayOrder = displayOrder
             };
 

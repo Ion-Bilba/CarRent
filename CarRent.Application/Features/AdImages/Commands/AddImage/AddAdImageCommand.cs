@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 
 namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
 {
     public record AddAdImageRequest(
-        string ImageUrl,
+        IFormFile File,
         int DisplayOrder
     );
 
