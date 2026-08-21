@@ -26,6 +26,14 @@ public class ValidationExceptionMiddleware
         {
             await HandleNotFoundExceptionAsync(context, ex);
         }
+        catch (BadHttpRequestException ex)
+        {
+            await HandleBadRequestExceptionAsync(context, ex);
+        }
+        catch (Exception ex)
+        {
+            await HandleGenericExceptionAsync(context, ex);
+        }
     }
 
     private static Task HandleValidationExceptionAsync(HttpContext context, ValidationException exception)
@@ -60,6 +68,38 @@ public class ValidationExceptionMiddleware
         {
             status = StatusCodes.Status404NotFound,
             title = "Not Found",
+            detail = exception.Message
+        };
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+    }
+
+    private static Task HandleBadRequestExceptionAsync(HttpContext context, BadHttpRequestException exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        var response = new
+        {
+            status = StatusCodes.Status400BadRequest,
+            title = "Bad Request",
+            detail = exception.Message
+        };
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+    }
+
+    private static Task HandleGenericExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        var response = new
+        {
+            status = StatusCodes.Status500InternalServerError,
+            title = "Internal Server Error",
             detail = exception.Message
         };
 

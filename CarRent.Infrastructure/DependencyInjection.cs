@@ -1,4 +1,5 @@
 ﻿using CarRent.Application.Abstractions;
+using CarRent.Infrastructure.Authentication;
 using CarRent.Infrastructure.Persistence;
 using CarRent.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ namespace CarRent.Infrastructure
 
             services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
             services.AddScoped<IFileStorageService, LocalFileStorageService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IJwtService, JwtService>();
             return services;
         }
     }
