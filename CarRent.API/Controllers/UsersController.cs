@@ -8,6 +8,7 @@ using CarRent.Application.Features.Users.DTOs;
 using CarRent.Application.Features.Users.Queries.GetAllUsers;
 using CarRent.Application.Features.Users.Queries.GetUserById;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRent.API.Controllers;
@@ -23,28 +24,28 @@ public class UsersController : ControllerBase
     {
         _mediator = mediator;
     }
-
+    [Authorize(Roles ="Admin")]
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetAll(CancellationToken cancellationToken)
     {
         var users = await _mediator.Send(new GetAllUsersQuery(), cancellationToken);
         return Ok(users);
     }
-
+    [Authorize]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<UserDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var user = await _mediator.Send(new GetUserByIdQuery(id), cancellationToken);
         return Ok(user);
     }
-
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest request, CancellationToken cancellationToken)
     {
         await _mediator.Send(new UpdateUserCommand(id, request), cancellationToken);
         return NoContent();
     }
-
+    [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

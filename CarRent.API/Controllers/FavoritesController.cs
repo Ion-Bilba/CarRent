@@ -8,10 +8,12 @@ using CarRent.Application.Features.Favorites.Commands.DeleteFavorite;
 using CarRent.Application.Features.Favorites.Queries.GetMyFavorites;
 using CarRent.Application.Features.Favorites.Queries.IsFavorite;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRent.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/users/{userId:guid}/favorites")]
     public class FavoritesController : ControllerBase

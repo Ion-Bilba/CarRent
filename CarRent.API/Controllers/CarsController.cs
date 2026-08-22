@@ -6,6 +6,7 @@ using CarRent.Application.Features.Cars.Commands.UpdateCar;
 using CarRent.Application.Features.Cars.Queries.GetCarById;
 using CarRent.Application.Features.Cars.Queries.GetCarsQuery;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -22,14 +23,14 @@ namespace CarRent.API.Controllers
         {
             _mediator = mediator;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCarCommand command, CancellationToken cancellationToken)
         {
             var carId = await _mediator.Send(command, cancellationToken);
             return Ok(carId);
         }
-
+        [Authorize]
         [HttpDelete("{Id:guid}")]
         public async Task<IActionResult> Delete(Guid Id,CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace CarRent.API.Controllers
             }
             return NoContent();
         }
-
+        [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCarRequest request, CancellationToken cancellationToken)
         {
@@ -67,7 +68,7 @@ namespace CarRent.API.Controllers
 
             return NoContent();
         }
-
+        [AllowAnonymous]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
         {
@@ -80,6 +81,7 @@ namespace CarRent.API.Controllers
 
             return Ok(car);
         }
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetCarsQuery query, CancellationToken cancellationToken)
         {

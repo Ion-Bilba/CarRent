@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using CarRent.Application.Features.AdImages.Commands.AddAdImage;
 using CarRent.Application.Features.AdImages.Commands.DeleteAdImage;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRent.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/ads/{adId:guid}/images")]
     public class AdImagesController : ControllerBase

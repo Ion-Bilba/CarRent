@@ -6,6 +6,7 @@ using CarRent.Application.Features.Ads.Commands.UpdateAdCommand;
 using CarRent.Application.Features.Ads.Queries.GetAdById;
 using CarRent.Application.Features.Ads.Queries.GetAdsQuery;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace CarRent.API.Controllers;
 
@@ -21,6 +22,7 @@ public class AdsController : ControllerBase
     {
         _mediator = mediator;
     }
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateAdCommand command, CancellationToken cancellationToken)
     {
@@ -28,14 +30,14 @@ public class AdsController : ControllerBase
 
         return Ok(adId);
     }
-
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<PagedResult<AdDto>>> GetAll([FromQuery] GetAdsQuery query,CancellationToken cancellationToken)
     {
         var ads = await _mediator.Send( query, cancellationToken);
         return Ok(ads);
     }
-
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAdRequest request, CancellationToken cancellationToken)
     {
@@ -57,7 +59,7 @@ public class AdsController : ControllerBase
 
         return NoContent();
     }
-
+    [Authorize]
     [HttpDelete("{Id:guid}")]
     public async Task<IActionResult> Delete(Guid Id, CancellationToken cancellationToken)
     {
@@ -70,6 +72,7 @@ public class AdsController : ControllerBase
 
         return NoContent();
     }
+    [AllowAnonymous]
     [HttpGet("{Id:guid}")]
     public async Task<IActionResult>GetById (Guid Id, CancellationToken cancellationToken)
     {

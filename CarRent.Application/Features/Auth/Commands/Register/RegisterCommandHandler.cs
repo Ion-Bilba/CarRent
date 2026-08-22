@@ -1,5 +1,6 @@
 ﻿using CarRent.Application.Abstractions;
 using CarRent.Domain.Entities;
+using CarRent.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,8 @@ namespace CarRent.Application.Features.Auth.Commands.Register
                 PasswordHash = passwordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                PhoneNumber = request.PhoneNumber
+                PhoneNumber = request.PhoneNumber,
+                UserRole=UserRole.User
 
             };
 

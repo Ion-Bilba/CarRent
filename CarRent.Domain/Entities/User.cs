@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarRent.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,6 +18,8 @@ namespace CarRent.Domain.Entities
         public string PasswordHash {  get; set; } = string.Empty;
 
         public string? PhoneNumber {  get; set; }
+
+        public UserRole UserRole { get; set; }= UserRole.User;
 
         public DateTime CreatedAt { get; set; }
 
