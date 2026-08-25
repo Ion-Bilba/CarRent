@@ -15,7 +15,7 @@ namespace CarRent.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/users/{userId:guid}/favorites")]
+    [Route("api/favorites")]
     public class FavoritesController : ControllerBase
     {
         private readonly ISender _mediator;
@@ -26,30 +26,32 @@ namespace CarRent.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AdDto>>> GetMyFavorites(Guid userId, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<AdDto>>> GetMyFavorites(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetMyFavoritesQuery(userId), cancellationToken);
+           
+            var result = await _mediator.Send(new GetMyFavoritesQuery(), cancellationToken);
             return Ok(result);
         }
 
         [HttpGet("{adId:guid}/status")]
-        public async Task<ActionResult<bool>> IsFavorite(Guid userId, Guid adId, CancellationToken cancellationToken)
+        public async Task<ActionResult<bool>> IsFavorite(Guid adId, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new IsFavoriteQuery(userId, adId), cancellationToken);
+           
+            var result = await _mediator.Send(new IsFavoriteQuery(adId), cancellationToken);
             return Ok(result);
         }
 
         [HttpPost("{adId:guid}")]
-        public async Task<IActionResult> Add(Guid userId, Guid adId, CancellationToken cancellationToken)
+        public async Task<IActionResult> Add(Guid adId, CancellationToken cancellationToken)
         {
-            await _mediator.Send(new AddFavoriteCommand(userId, adId), cancellationToken);
+            await _mediator.Send(new AddFavoriteCommand(adId), cancellationToken);
             return Ok();
         }
 
         [HttpDelete("{adId:guid}")]
-        public async Task<IActionResult> Delete(Guid userId, Guid adId, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete(Guid adId, CancellationToken cancellationToken)
         {
-            await _mediator.Send(new DeleteFavoriteCommand(userId, adId), cancellationToken);
+            await _mediator.Send(new DeleteFavoriteCommand(adId), cancellationToken);
             return NoContent();
         }
     }

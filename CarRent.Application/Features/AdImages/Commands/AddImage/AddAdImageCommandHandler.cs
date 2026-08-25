@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CarRent.Application.Abstractions;
+using CarRent.Application.Common.Interfaces;
 using CarRent.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,25 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
     {
         private readonly IApplicationDbContext _context;
         private readonly IFileStorageService _fileStorageService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AddAdImageCommandHandler(IApplicationDbContext context, IFileStorageService fileStorageService)
+        public AddAdImageCommandHandler(
+            IApplicationDbContext context,
+            IFileStorageService fileStorageService,
+            ICurrentUserService currentUserService)
         {
             _context = context;
             _fileStorageService = fileStorageService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Guid> Handle(AddAdImageCommand request, CancellationToken cancellationToken)
         {
+           
+            var currentUserId = _currentUserService.UserId
+                ?? throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
+
+            
             var ad = await _context.Ads
                 .FirstOrDefaultAsync(a => a.Id == request.AdId, cancellationToken);
 
@@ -31,6 +42,13 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new KeyNotFoundException($"Anunțul cu ID-ul {request.AdId} nu există.");
             }
 
+           
+            if (ad.UserId != currentUserId && !_currentUserService.IsAdmin)
+            {
+                throw new UnauthorizedAccessException("Nu poți adăuga imagini la un anunț care nu îți aparține.");
+            }
+
+            
             var currentImagesCount = await _context.AdImages
                 .CountAsync(i => i.AdId == request.AdId, cancellationToken);
 
@@ -39,6 +57,7 @@ namespace CarRent.Application.Features.AdImages.Commands.AddAdImage
                 throw new InvalidOperationException("Un anunț nu poate avea mai mult de 20 de imagini.");
             }
 
+           
             var imageUrl = await _fileStorageService.SaveFileAsync(request.Request.File, "images", cancellationToken);
 
             var maxOrder = await _context.AdImages

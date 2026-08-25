@@ -8,6 +8,7 @@ namespace CarRent.Application.DTOs
     public record CarDto
     (
         Guid Id,
+        Guid UserId,
         string Brand,
         string Model,
         int Year,

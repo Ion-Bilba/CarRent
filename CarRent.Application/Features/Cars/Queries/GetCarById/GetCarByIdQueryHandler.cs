@@ -27,6 +27,7 @@ namespace CarRent.Application.Features.Cars.Queries.GetCarById
             }
             return new CarDto(
                 car.Id,
+                car.UserId,
                 car.Brand,
                 car.Model,
                 car.Year,

@@ -6,9 +6,6 @@ namespace CarRent.Application.Features.Favorites.Commands.DeleteFavorite
     {
         public DeleteFavoriteCommandValidator()
         {
-            RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("ID-ul utilizatorului este obligatoriu.");
-
             RuleFor(x => x.AdId)
                 .NotEmpty().WithMessage("ID-ul anunțului este obligatoriu.");
         }

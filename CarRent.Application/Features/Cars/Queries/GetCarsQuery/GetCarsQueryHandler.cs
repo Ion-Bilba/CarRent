@@ -61,6 +61,7 @@ namespace CarRent.Application.Features.Cars.Queries.GetCarsQuery
             return await query
                 .Select(c => new CarDto(
                     c.Id,
+                    c.UserId,
                     c.Brand,
                     c.Model,
                     c.Year,

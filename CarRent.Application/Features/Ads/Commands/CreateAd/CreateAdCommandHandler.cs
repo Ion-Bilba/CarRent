@@ -10,9 +10,7 @@ public class CreateAdCommandHandler : IRequestHandler<CreateAdCommand, Guid>
     private readonly IApplicationDbContext _context;
     private readonly ICurrentUserService _currentUserService;
 
-    public CreateAdCommandHandler(
-        IApplicationDbContext context,
-        ICurrentUserService currentUserService)
+    public CreateAdCommandHandler(IApplicationDbContext context,ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;

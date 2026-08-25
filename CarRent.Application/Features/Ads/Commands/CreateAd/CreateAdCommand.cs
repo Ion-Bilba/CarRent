@@ -9,7 +9,7 @@ namespace CarRent.Application.Features.Ads.Commands.CreateAd
     public record CreateAdCommand
      (
          Guid CarId,
-         Guid UserId,
+        
          string Title,
          string Description,
          decimal Price,

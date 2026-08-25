@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CarRent.Application.Abstractions;
+using CarRent.Application.Common.Interfaces;
 using CarRent.Application.DTOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,17 +14,24 @@ namespace CarRent.Application.Features.Favorites.Queries.GetMyFavorites
     public class GetMyFavoritesQueryHandler : IRequestHandler<GetMyFavoritesQuery, List<AdDto>>
     {
         private readonly IApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetMyFavoritesQueryHandler(IApplicationDbContext context)
+        public GetMyFavoritesQueryHandler(
+            IApplicationDbContext context,
+            ICurrentUserService currentUserService)
         {
             _context = context;
+            _currentUserService = currentUserService;
         }
 
         public async Task<List<AdDto>> Handle(GetMyFavoritesQuery request, CancellationToken cancellationToken)
         {
+            var currentUserId = _currentUserService.UserId
+                ?? throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
+
             return await _context.Favorites
                 .AsNoTracking()
-                .Where(f => f.UserId == request.UserId)
+                .Where(f => f.UserId == currentUserId)
                 .OrderByDescending(f => f.SavedAt)
                 .Select(f => new AdDto
                 {

@@ -1,7 +1,5 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 
-namespace CarRent.Application.Features.Favorites.Commands.AddFavorite
-{
-    public record AddFavoriteCommand(Guid UserId, Guid AdId) : IRequest<bool>;
-}
+namespace CarRent.Application.Features.Favorites.Commands.AddFavorite;
+
+public record AddFavoriteCommand(Guid AdId) : IRequest<bool>;

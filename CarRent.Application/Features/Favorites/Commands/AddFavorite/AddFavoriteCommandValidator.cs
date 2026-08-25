@@ -6,8 +6,7 @@ namespace CarRent.Application.Features.Favorites.Commands.AddFavorite
     {
         public AddFavoriteCommandValidator()
         {
-            RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("ID-ul utilizatorului este obligatoriu.");
+           
 
             RuleFor(x => x.AdId)
                 .NotEmpty().WithMessage("ID-ul anunțului este obligatoriu.");

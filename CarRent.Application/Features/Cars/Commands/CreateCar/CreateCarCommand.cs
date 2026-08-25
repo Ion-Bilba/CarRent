@@ -8,7 +8,7 @@ namespace CarRent.Application.Features.Cars.Commands.CreatedCar
 {
     public record CreateCarCommand
     (
-        Guid UserId,
+       
         string Brand,
         string Model,
         int Year,

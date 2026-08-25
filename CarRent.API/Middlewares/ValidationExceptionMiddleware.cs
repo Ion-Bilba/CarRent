@@ -30,6 +30,10 @@ public class ValidationExceptionMiddleware
         {
             await HandleBadRequestExceptionAsync(context, ex);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            await HandleForbiddenExceptionAsync(context, ex);
+        }
         catch (Exception ex)
         {
             await HandleGenericExceptionAsync(context, ex);
@@ -84,6 +88,22 @@ public class ValidationExceptionMiddleware
         {
             status = StatusCodes.Status400BadRequest,
             title = "Bad Request",
+            detail = exception.Message
+        };
+
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+    }
+
+    private static Task HandleForbiddenExceptionAsync(HttpContext context, UnauthorizedAccessException exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+        var response = new
+        {
+            status = StatusCodes.Status403Forbidden,
+            title = "Forbidden",
             detail = exception.Message
         };
 

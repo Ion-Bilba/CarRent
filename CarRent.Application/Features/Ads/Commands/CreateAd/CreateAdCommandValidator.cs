@@ -23,7 +23,7 @@ namespace CarRent.Application.Features.Ads.Commands.CreateAd
 
             RuleFor(c => c.CarId).NotEmpty().WithMessage("ID-ul mașinii este obligatoriu.");
 
-            RuleFor(c => c.UserId).NotEmpty().WithMessage("ID-ul utilizatorului este obligatoriu.");
+           
         }
     }
 }
