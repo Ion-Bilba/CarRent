@@ -1,0 +1,126 @@
+﻿@page "/ads/{Id:guid}"
+@using CarRent.Web.Models.Ads
+@using CarRent.Web.Models.Common
+@inject AdService AdService
+@inject FavoriteService FavoriteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>CarRent - Detalii Anunț</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Se încarcă...</span>
+        </div>
+        <p class="mt-2">Se încarcă detaliile anunțului...</p>
+    </div>
+}
+else if (ad == null)
+{
+    <div class="alert alert-warning" role="alert">
+        Anunțul solicitat nu a fost găsit.
+    </div>
+    <a href="ads" class="btn btn-secondary">Înapoi la anunțuri</a>
+}
+else
+{
+    <div class="container my-4">
+        <button class="btn btn-outline-secondary mb-3" @onclick='() => NavigationManager.NavigateTo("ads")'>
+            &larr; Înapoi
+        </button>
+
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="card mb-4 shadow-sm border-0">
+                    <img src="@(string.IsNullOrEmpty(ad.MainImageUrl) ? "images/car-placeholder.png" : ad.MainImageUrl)"
+                         class="img-fluid rounded-top"
+                         alt="@ad.Title"
+                         style="width: 100%; max-height: 400px; object-fit: cover;" />
+
+                    @if (ad.AdImages != null && ad.AdImages.Any())
+                    {
+                        <div class="d-flex gap-2 p-2 overflow-auto">
+                            @foreach (var img in ad.AdImages)
+                            {
+                                <img src="@img.ImageUrl"
+                                     class="img-thumbnail"
+                                     style="width: 80px; height: 60px; object-fit: cover; cursor: pointer;"
+                                     alt="Thumb" />
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 p-4">
+                    <h2 class="fw-bold mb-3">@ad.Title</h2>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="text-primary fw-bold mb-0">€@ad.Price.ToString("N0")</h3>
+                        <AuthorizeView>
+                            <Authorized>
+                                <button class="btn @(isFavorite ? "btn-danger" : "btn-outline-danger")" @onclick="ToggleFavorite">
+                                    @(isFavorite ? "♥ Salvat la Favorite" : "♡ Adaugă la Favorite")
+                                </button>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+
+                    <hr />
+
+                    <h5 class="fw-bold">Descriere</h5>
+                    <p class="text-muted">@ad.Description</p>
+
+                    <div class="mt-4 text-muted small">
+                        <p class="mb-1">Vizualizări: <strong>@ad.Views</strong></p>
+                        <p class="mb-0">Publicat la: <strong>@ad.CreatedAt.ToString("dd.MM.yyyy")</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private AdDto? ad;
+    private bool isLoading = true;
+    private bool isFavorite;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        ad = await AdService.GetAdByIdAsync(Id);
+
+        if (ad != null)
+        {
+            isFavorite = await FavoriteService.IsFavoriteAsync(Id);
+        }
+
+        isLoading = false;
+    }
+
+    private async Task ToggleFavorite()
+    {
+        if (isFavorite)
+        {
+            var success = await FavoriteService.DeleteFavoriteAsync(Id);
+            if (success)
+            {
+                isFavorite = false;
+            }
+        }
+        else
+        {
+            var success = await FavoriteService.AddFavoriteAsync(Id);
+            if (success)
+            {
+                isFavorite = true;
+            }
+        }
+    }
+}

@@ -1,0 +1,123 @@
+﻿@page "/ads/edit/{Id:guid}"
+@attribute [Authorize]
+@using CarRent.Web.Models.Ads
+@inject AdService AdService
+@inject NavigationManager NavigationManager
+
+<PageTitle>CarRent - Editează Anunț</PageTitle>
+
+<div class="row justify-content-center my-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h3 class="mb-4">Editează anunțul</h3>
+
+            @if (isLoading)
+            {
+                <div class="text-center my-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
+            else
+            {
+                <EditForm Model="@updateModel" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Titlu Anunț</label>
+                        <InputText id="title" class="form-control" @bind-Value="updateModel.Title" />
+                        <ValidationMessage For="@(() => updateModel.Title)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="adType" class="form-label">Tip Anunț</label>
+                        <InputSelect id="adType" class="form-select" @bind-Value="updateModel.AdType">
+                            <option value="@AdType.Rent">Închiriere (Rent)</option>
+                            <option value="@AdType.Sale">Vânzare (Sale)</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Preț (€)</label>
+                        <InputNumber id="price" class="form-control" @bind-Value="updateModel.Price" />
+                        <ValidationMessage For="@(() => updateModel.Price)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descriere</label>
+                        <InputTextArea id="description" class="form-control" rows="4" @bind-Value="updateModel.Description" />
+                        <ValidationMessage For="@(() => updateModel.Description)" />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="my-ads" class="btn btn-outline-secondary">Anulează</a>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                <span>Se salvează...</span>
+                            }
+                            else
+                            {
+                                <span>Salvează Modificările</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private UpdateAdRequest updateModel = new();
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existingAd = await AdService.GetAdByIdAsync(Id);
+
+        if (existingAd != null)
+        {
+            updateModel.Title = existingAd.Title;
+            updateModel.Description = existingAd.Description;
+            updateModel.Price = existingAd.Price;
+            updateModel.AdType = (AdType)existingAd.AdType;
+        }
+        else
+        {
+            errorMessage = "Anunțul nu a fost găsit.";
+        }
+
+        isLoading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        var success = await AdService.UpdateAdAsync(Id, updateModel);
+
+        if (success)
+        {
+            NavigationManager.NavigateTo("my-ads");
+        }
+        else
+        {
+            errorMessage = "Nu s-a putut actualiza anunțul.";
+        }
+
+        isSubmitting = false;
+    }
+}

@@ -3,7 +3,7 @@
 namespace CarRent.Application.Features.Ads.Commands.UpdateAd
 {
     public record UpdateAdRequest(
-     string Title,
+        string Title,
         string Description,
         decimal Price,
         AdType AdType

@@ -1,6 +1,9 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">CarRent.Web</a>
+        <a class="navbar-brand" href="">CarRent</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -8,22 +11,80 @@
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
+    <nav class="flex-column">
+        <!-- Pagină publică - Accesibilă oricui -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="ads">
+                <span class="bi bi-card-list-nav-menu" aria-hidden="true"></span> Anunțuri
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="cars">
+                <span class="bi bi-car-front-fill-nav-menu" aria-hidden="true"></span> Mașini
             </NavLink>
         </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <!-- Opțiuni vizibile doar utilizatorilor autentificați -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="favorites">
+                        <span class="bi bi-heart-fill-nav-menu" aria-hidden="true"></span> Favorite
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="my-ads">
+                        <span class="bi bi-journal-bookmark-fill-nav-menu" aria-hidden="true"></span> Anunțurile mele
+                    </NavLink>
+                </div>
+
+                <!-- Secțiune vizibilă DOAR pentru Admin -->
+                <AuthorizeView Roles="Admin" Context="adminContext">
+                    <Authorized>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="admin/users">
+                                <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Utilizatori
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">
+                        <span class="bi bi-person-circle-nav-menu" aria-hidden="true"></span> Profil
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <button class="nav-link btn btn-link text-start w-100" @onclick="HandleLogout">
+                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Deconectare (@context.User.Identity?.Name)
+                    </button>
+                </div>
+            </Authorized>
+
+            <NotAuthorized>
+                <!-- Opțiuni vizibile doar utilizatorilor neautentificați -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Autentificare
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Înregistrare
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
 </div>
 
@@ -35,5 +96,11 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("login");
     }
 }

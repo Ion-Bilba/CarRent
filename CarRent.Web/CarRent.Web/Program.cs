@@ -1,18 +1,34 @@
-using CarRent.Web;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.Authorization;
+using CarRent.Web;
+using CarRent.Web.Authentication;
+using CarRent.Web.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7088";
 
-builder.Services.AddOidcAuthentication(options =>
+// Inregistrare Handlere si Servicii
+builder.Services.AddTransient<JwtAuthorizationHandler>();
+
+builder.Services.AddHttpClient("CarRent.API", client =>
 {
-    // Configure your authentication provider options here.
-    // For more information, see https://aka.ms/blazor-standalone-auth
-    builder.Configuration.Bind("Local", options.ProviderOptions);
-});
+    client.BaseAddress = new Uri(apiBaseUrl);
+})
+.AddHttpMessageHandler<JwtAuthorizationHandler>();
+
+// Configurare Client implicit pentru aplicatie
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("CarRent.API"));
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AdService>();
+builder.Services.AddScoped<CarService>();
+builder.Services.AddScoped<FavoriteService>();
 
 await builder.Build().RunAsync();

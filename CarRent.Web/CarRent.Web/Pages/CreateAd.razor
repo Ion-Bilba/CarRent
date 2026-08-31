@@ -1,0 +1,104 @@
+﻿@page "/ads/create"
+@attribute [Authorize]
+@using CarRent.Web.Models.Ads
+@inject AdService AdService
+@inject NavigationManager NavigationManager
+
+<PageTitle>CarRent - Adaugă Anunț</PageTitle>
+
+<div class="row justify-content-center my-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h3 class="mb-4">Adaugă un anunț nou</h3>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
+
+            <EditForm Model="@createModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label for="carId" class="form-label">ID Mașină (Car ID)</label>
+                    <InputText id="carId" class="form-control" @bind-Value="CarIdString" placeholder="00000000-0000-0000-0000-000000000000" />
+                    <ValidationMessage For="@(() => createModel.CarId)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titlu Anunț</label>
+                    <InputText id="title" class="form-control" @bind-Value="createModel.Title" placeholder="ex: BMW M5 F90 de închiriat" />
+                    <ValidationMessage For="@(() => createModel.Title)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="adType" class="form-label">Tip Anunț</label>
+                    <InputSelect id="adType" class="form-select" @bind-Value="createModel.AdType">
+                        <option value="@AdType.Rent">Închiriere (Rent)</option>
+                        <option value="@AdType.Sale">Vânzare (Sale)</option>
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Preț (€)</label>
+                    <InputNumber id="price" class="form-control" @bind-Value="createModel.Price" />
+                    <ValidationMessage For="@(() => createModel.Price)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descriere</label>
+                    <InputTextArea id="description" class="form-control" rows="4" @bind-Value="createModel.Description" />
+                    <ValidationMessage For="@(() => createModel.Description)" />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="my-ads" class="btn btn-outline-secondary">Anulează</a>
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Se salvează...</span>
+                        }
+                        else
+                        {
+                            <span>Salvează Anunțul</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateAdRequest createModel = new();
+    private string? errorMessage;
+    private bool isSubmitting;
+
+    private string CarIdString
+    {
+        get => createModel.CarId == Guid.Empty ? string.Empty : createModel.CarId.ToString();
+        set => createModel.CarId = Guid.TryParse(value, out var g) ? g : Guid.Empty;
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        var adId = await AdService.CreateAdAsync(createModel);
+
+        if (adId.HasValue && adId.Value != Guid.Empty)
+        {
+            NavigationManager.NavigateTo($"ads/{adId.Value}");
+        }
+        else
+        {
+            errorMessage = "Nu s-a putut crea anunțul. Asigură-te că datele sunt valide.";
+        }
+
+        isSubmitting = false;
+    }
+}

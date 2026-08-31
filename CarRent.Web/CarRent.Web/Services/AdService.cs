@@ -1,0 +1,82 @@
+﻿using System.Net.Http.Json;
+using CarRent.Web.Models.Ads;
+using CarRent.Web.Models.Common;
+
+namespace CarRent.Web.Services;
+
+public class AdService
+{
+    private readonly HttpClient _httpClient;
+
+    public AdService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task<PagedResult<AdDto>?> GetAdsAsync(int pageNumber = 1, int pageSize = 10)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>($"api/Ads?PageNumber={pageNumber}&PageSize={pageSize}");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<AdDto?> GetAdByIdAsync(Guid id)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<AdDto>($"api/Ads/{id}");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<Guid?> CreateAdAsync(CreateAdRequest request)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/Ads", request);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Guid>();
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateAdAsync(Guid id, UpdateAdRequest request)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/Ads/{id}", request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteAdAsync(Guid id)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"api/Ads/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

@@ -1,0 +1,226 @@
+﻿@page "/cars"
+@using System.Security.Claims
+@using CarRent.Web.Models.Cars
+@using CarRent.Web.Models.Common
+@inject CarService CarService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>CarRent - Automobile</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Automobile</h3>
+    <AuthorizeView>
+        <Authorized>
+            <button class="btn btn-primary" @onclick="ToggleCreateForm">
+                @(showCreateForm ? "Închide formularul" : "+ Adaugă Mașină Nouă")
+            </button>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+@if (showCreateForm)
+{
+    <div class="card shadow-sm border-0 mb-4 p-4">
+        <h5 class="mb-3">Adaugă un autovehicul nou</h5>
+        <EditForm Model="@createModel" OnValidSubmit="HandleCreateCar">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Marcă</label>
+                    <InputText class="form-control" @bind-Value="createModel.Brand" placeholder="ex: BMW" />
+                    <ValidationMessage For="@(() => createModel.Brand)" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Model</label>
+                    <InputText class="form-control" @bind-Value="createModel.Model" placeholder="ex: M5 F90" />
+                    <ValidationMessage For="@(() => createModel.Model)" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">An Fabricație</label>
+                    <InputNumber class="form-control" @bind-Value="createModel.Year" />
+                    <ValidationMessage For="@(() => createModel.Year)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Culoare</label>
+                    <InputText class="form-control" @bind-Value="createModel.Color" />
+                    <ValidationMessage For="@(() => createModel.Color)" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Rulaj (km)</label>
+                    <InputNumber class="form-control" @bind-Value="createModel.Mileage" />
+                    <ValidationMessage For="@(() => createModel.Mileage)" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Capacitate Motor (cm³)</label>
+                    <InputNumber class="form-control" @bind-Value="createModel.EngineCapacity" />
+                    <ValidationMessage For="@(() => createModel.EngineCapacity)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Combustibil</label>
+                    <InputSelect class="form-select" @bind-Value="createModel.FuelType">
+                        @foreach (var fuel in Enum.GetValues<FuelType>())
+                        {
+                            <option value="@fuel">@fuel</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Transmisie</label>
+                    <InputSelect class="form-select" @bind-Value="createModel.Transmission">
+                        @foreach (var trans in Enum.GetValues<Transmission>())
+                        {
+                            <option value="@trans">@trans</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Tracțiune</label>
+                    <InputSelect class="form-select" @bind-Value="createModel.TractionType">
+                        @foreach (var trac in Enum.GetValues<TractionType>())
+                        {
+                            <option value="@trac">@trac</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <span>Se salvează...</span>
+                }
+                else
+                {
+                    <span>Salvează Mașina</span>
+                }
+            </button>
+        </EditForm>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Se încarcă lista de mașini...</p>
+    </div>
+}
+else if (cars == null || !cars.Any())
+{
+    <div class="alert alert-info">
+        Nu au fost găsite autovehicule în baza de date.
+    </div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Marcă & Model</th>
+                    <th>An</th>
+                    <th>Culoare</th>
+                    <th>Rulaj</th>
+                    <th>Motor</th>
+                    <th>Cutie</th>
+                    <th>Tracțiune</th>
+                    <th>ID Mașină</th>
+                    <AuthorizeView>
+                        <Authorized>
+                            <th class="text-end">Acțiuni</th>
+                        </Authorized>
+                    </AuthorizeView>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in cars)
+                {
+                    <tr>
+                        <td class="fw-bold">@car.Brand @car.Model</td>
+                        <td>@car.Year</td>
+                        <td>@car.Color</td>
+                        <td>@car.Mileage.ToString("N0") km</td>
+                        <td>@car.EngineCapacity cm³ (@car.FuelType)</td>
+                        <td>@car.Transmission</td>
+                        <td>@car.TractionType</td>
+                        <td><small class="text-muted">@car.Id</small></td>
+                        <AuthorizeView>
+                            <Authorized Context="authContext">
+                                <td class="text-end">
+                                    @if (car.UserId == currentUserId)
+                                    {
+                                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCar(car.Id)">Șterge</button>
+                                    }
+                                </td>
+                            </Authorized>
+                        </AuthorizeView>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<CarDto>? cars;
+    private CreateCarRequest createModel = new();
+    private bool isLoading = true;
+    private bool showCreateForm = false;
+    private bool isSubmitting = false;
+    private Guid currentUserId = Guid.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Guid.TryParse(userIdClaim, out currentUserId);
+
+        await LoadCars();
+    }
+
+    private async Task LoadCars()
+    {
+        isLoading = true;
+        var result = await CarService.GetCarsAsync(1, 100);
+        if (result != null)
+        {
+            cars = result.Items;
+        }
+        isLoading = false;
+    }
+
+    private void ToggleCreateForm()
+    {
+        showCreateForm = !showCreateForm;
+    }
+
+    private async Task HandleCreateCar()
+    {
+        isSubmitting = true;
+        var carId = await CarService.CreateCarAsync(createModel);
+        if (carId.HasValue)
+        {
+            showCreateForm = false;
+            createModel = new();
+            await LoadCars();
+        }
+        isSubmitting = false;
+    }
+
+    private async Task DeleteCar(Guid id)
+    {
+        var success = await CarService.DeleteCarAsync(id);
+        if (success)
+        {
+            await LoadCars();
+        }
+    }
+}

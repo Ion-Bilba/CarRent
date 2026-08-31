@@ -1,0 +1,104 @@
+﻿@page "/my-ads"
+@attribute [Authorize]
+@using System.Security.Claims
+@using CarRent.Web.Models.Ads
+@using CarRent.Web.Models.Common
+@inject AdService AdService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>CarRent - Anunțurile mele</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Anunțurile mele</h3>
+    <a href="ads/create" class="btn btn-primary">+ Adaugă Anunț Nou</a>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Se încarcă anunțurile...</p>
+    </div>
+}
+else if (myAds == null || !myAds.Any())
+{
+    <div class="alert alert-info">
+        Nu ai publicat niciun anunț până acum.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Imagine</th>
+                    <th>Titlu</th>
+                    <th>Preț</th>
+                    <th>Vizualizări</th>
+                    <th>Data Adăugării</th>
+                    <th class="text-end">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ad in myAds)
+                {
+                    <tr>
+                        <td>
+                            <img src="@(string.IsNullOrEmpty(ad.MainImageUrl) ? "images/car-placeholder.png" : ad.MainImageUrl)"
+                                 alt="@ad.Title"
+                                 style="width: 60px; height: 45px; object-fit: cover;" class="rounded" />
+                        </td>
+                        <td class="fw-bold">@ad.Title</td>
+                        <td class="text-primary fw-bold">€@ad.Price.ToString("N0")</td>
+                        <td>@ad.Views</td>
+                        <td>@ad.CreatedAt.ToString("dd.MM.yyyy")</td>
+                        <td class="text-end">
+                            <a href="ads/edit/@ad.Id" class="btn btn-outline-warning btn-sm me-2">Editează</a>
+                            <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteAd(ad.Id)">Șterge</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<AdDto>? myAds;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMyAds();
+    }
+
+    private async Task LoadMyAds()
+    {
+        isLoading = true;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (Guid.TryParse(userIdClaim, out var currentUserId))
+        {
+            var pagedResult = await AdService.GetAdsAsync(1, 100);
+            if (pagedResult != null)
+            {
+                myAds = pagedResult.Items.Where(a => a.UserId == currentUserId).ToList();
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private async Task DeleteAd(Guid id)
+    {
+        var success = await AdService.DeleteAdAsync(id);
+        if (success)
+        {
+            await LoadMyAds();
+        }
+    }
+}
