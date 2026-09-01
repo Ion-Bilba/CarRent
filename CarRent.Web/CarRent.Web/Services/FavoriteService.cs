@@ -16,7 +16,7 @@ public class FavoriteService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<List<AdDto>>("api/favorites");
+            return await _httpClient.GetFromJsonAsync<List<AdDto>>("api/favorites", JsonOptions.Default);
         }
         catch
         {

@@ -23,7 +23,7 @@ public class AdService
                 url += $"&AdType={adType.Value}";
             }
 
-            return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>(url);
+            return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>(url, JsonOptions.Default);
         }
         catch
         {
@@ -35,7 +35,7 @@ public class AdService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<AdDto>($"api/Ads/{id}");
+            return await _httpClient.GetFromJsonAsync<AdDto>($"api/Ads/{id}", JsonOptions.Default);
         }
         catch
         {
@@ -47,7 +47,7 @@ public class AdService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Ads", request);
+            var response = await _httpClient.PostAsJsonAsync("api/Ads", request, JsonOptions.Default);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<Guid>();
@@ -64,7 +64,7 @@ public class AdService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/Ads/{id}", request);
+            var response = await _httpClient.PutAsJsonAsync($"api/Ads/{id}", request, JsonOptions.Default);
             return response.IsSuccessStatusCode;
         }
         catch

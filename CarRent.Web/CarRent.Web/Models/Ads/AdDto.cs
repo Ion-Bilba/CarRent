@@ -1,4 +1,6 @@
-﻿namespace CarRent.Web.Models.Ads;
+﻿using CarRent.Web.Models.Cars;
+
+namespace CarRent.Web.Models.Ads;
 
 public class AdDto
 {
@@ -8,8 +10,8 @@ public class AdDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
-    public int AdType { get; set; }
-    public int TractionType { get; set; }
+    public AdType AdType { get; set; }
+    public TractionType TractionType { get; set; }
     public bool IsActive { get; set; }
     public int Views { get; set; }
     public DateTime CreatedAt { get; set; }

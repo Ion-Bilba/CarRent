@@ -23,7 +23,7 @@ public class CarService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<PagedResult<CarDto>>($"api/Cars?PageNumber={pageNumber}&PageSize={pageSize}");
+            return await _httpClient.GetFromJsonAsync<PagedResult<CarDto>>($"api/Cars?PageNumber={pageNumber}&PageSize={pageSize}", JsonOptions.Default);
         }
         catch
         {
@@ -35,7 +35,7 @@ public class CarService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<CarDto>($"api/Cars/{id}");
+            return await _httpClient.GetFromJsonAsync<CarDto>($"api/Cars/{id}", JsonOptions.Default);
         }
         catch
         {
@@ -47,7 +47,7 @@ public class CarService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Cars", request);
+            var response = await _httpClient.PostAsJsonAsync("api/Cars", request, JsonOptions.Default);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<Guid>();
@@ -64,7 +64,7 @@ public class CarService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/Cars/{id}", request);
+            var response = await _httpClient.PutAsJsonAsync($"api/Cars/{id}", request, JsonOptions.Default);
             return response.IsSuccessStatusCode;
         }
         catch
