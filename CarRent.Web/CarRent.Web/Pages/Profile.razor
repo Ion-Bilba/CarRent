@@ -1,0 +1,198 @@
+﻿@page "/profile"
+@attribute [Authorize]
+@using System.Security.Claims
+@using CarRent.Web.Models.Users
+@inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>CarRent - Profilul Meu</PageTitle>
+
+<div class="row justify-content-center my-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h3 class="mb-4">Profilul meu</h3>
+
+            @if (isLoading)
+            {
+                <div class="text-center my-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Se încarcă datele profilului...</p>
+                </div>
+            }
+            else if (user == null)
+            {
+                <div class="alert alert-danger">
+                    Nu s-au putut încărca datele utilizatorului.
+                </div>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(statusMessage))
+                {
+                    <div class="alert @(isSuccess ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+                        @statusMessage
+                        <button type="button" class="btn-close" @onclick="() => statusMessage = null"></button>
+                    </div>
+                }
+
+                @if (!isEditing)
+                {
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-0">Prenume</label>
+                        <p class="fs-5 fw-bold mb-0">@user.FirstName</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-0">Nume</label>
+                        <p class="fs-5 fw-bold mb-0">@user.LastName</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-0">Email</label>
+                        <p class="fs-5 mb-0">@user.Email</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted mb-0">Număr de Telefon</label>
+                        <p class="fs-5 mb-0">@(string.IsNullOrEmpty(user.PhoneNumber) ? "-" : user.PhoneNumber)</p>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" @onclick="EnableEdit">
+                        Modifică profilul
+                    </button>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold">Anunțurile mele</h5>
+                            <p class="text-muted small mb-0">Gestionează anunțurile create de tine</p>
+                        </div>
+                        <a href="my-ads" class="btn btn-outline-primary">
+                            Vezi anunțurile
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <EditForm Model="@updateModel" OnValidSubmit="HandleUpdate">
+                        <DataAnnotationsValidator />
+
+                        <div class="mb-3">
+                            <label class="form-label">Prenume</label>
+                            <InputText class="form-control" @bind-Value="updateModel.FirstName" />
+                            <ValidationMessage For="@(() => updateModel.FirstName)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nume</label>
+                            <InputText class="form-control" @bind-Value="updateModel.LastName" />
+                            <ValidationMessage For="@(() => updateModel.LastName)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="updateModel.Email" />
+                            <ValidationMessage For="@(() => updateModel.Email)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Număr de Telefon</label>
+                            <InputText class="form-control" @bind-Value="updateModel.PhoneNumber" />
+                            <ValidationMessage For="@(() => updateModel.PhoneNumber)" />
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">
+                                Anulează
+                            </button>
+                            <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Se salvează...</span>
+                                }
+                                else
+                                {
+                                    <span>Salvează Modificările</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserDto? user;
+    private UpdateUserRequest updateModel = new();
+    private Guid currentUserId;
+    private bool isLoading = true;
+    private bool isEditing = false;
+    private bool isSubmitting = false;
+    private string? statusMessage;
+    private bool isSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserProfile();
+    }
+
+    private async Task LoadUserProfile()
+    {
+        isLoading = true;
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (Guid.TryParse(userIdClaim, out currentUserId))
+        {
+            user = await UserService.GetUserByIdAsync(currentUserId);
+        }
+
+        isLoading = false;
+    }
+
+    private void EnableEdit()
+    {
+        if (user != null)
+        {
+            updateModel = new UpdateUserRequest
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber ?? string.Empty
+            };
+            isEditing = true;
+            statusMessage = null;
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        statusMessage = null;
+    }
+
+    private async Task HandleUpdate()
+    {
+        isSubmitting = true;
+        statusMessage = null;
+
+        var success = await UserService.UpdateUserAsync(currentUserId, updateModel);
+
+        if (success)
+        {
+            isSuccess = true;
+            statusMessage = "Profilul a fost actualizat cu succes!";
+            isEditing = false;
+            await LoadUserProfile();
+        }
+        else
+        {
+            isSuccess = false;
+            statusMessage = "A apărut o eroare la salvarea modificărilor.";
+        }
+
+        isSubmitting = false;
+    }
+}

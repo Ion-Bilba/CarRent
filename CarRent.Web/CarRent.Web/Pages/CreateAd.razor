@@ -1,104 +1,100 @@
 ﻿@page "/ads/create"
-@attribute [Authorize]
 @using CarRent.Web.Models.Ads
+@using CarRent.Web.Models.Cars
+@using Microsoft.AspNetCore.Components.Forms
+@inject CarService CarService
 @inject AdService AdService
-@inject NavigationManager NavigationManager
+@inject NavigationManager Navigation
 
-<PageTitle>CarRent - Adaugă Anunț</PageTitle>
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm p-4">
+        <h3 class="mb-4">Adaugă un anunț nou</h3>
 
-<div class="row justify-content-center my-4">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0 p-4">
-            <h3 class="mb-4">Adaugă un anunț nou</h3>
+        <EditForm Model="@adModel" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
 
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @errorMessage
-                </div>
-            }
+            <!-- Selectare Mașină din DB -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Selectează Mașina</label>
+                @if (userCars == null)
+                {
+                    <p><em>Se încarcă mașinile tale...</em></p>
+                }
+                else if (!userCars.Any())
+                {
+                    <div class="alert alert-warning">
+                        Nu ai nicio mașină înregistrată. <a href="cars/create">Adaugă mai întâi o mașină</a>.
+                    </div>
+                }
+                else
+                {
+                    <InputSelect @bind-Value="adModel.CarId" class="form-select">
+                        <option value="">-- Alege o mașină --</option>
+                        @foreach (var car in userCars)
+                        {
+                            <option value="@car.Id">@car.Brand @car.Model (@car.Year)</option>
+                        }
+                    </InputSelect>
+                }
+            </div>
 
-            <EditForm Model="@createModel" OnValidSubmit="HandleSubmit">
-                <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label class="form-label">Titlu Anunț</label>
+                <InputText @bind-Value="adModel.Title" class="form-control" placeholder="ex: BMW M5 F90 stare impecabilă" />
+            </div>
 
-                <div class="mb-3">
-                    <label for="carId" class="form-label">ID Mașină (Car ID)</label>
-                    <InputText id="carId" class="form-control" @bind-Value="CarIdString" placeholder="00000000-0000-0000-0000-000000000000" />
-                    <ValidationMessage For="@(() => createModel.CarId)" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="title" class="form-label">Titlu Anunț</label>
-                    <InputText id="title" class="form-control" @bind-Value="createModel.Title" placeholder="ex: BMW M5 F90 de închiriat" />
-                    <ValidationMessage For="@(() => createModel.Title)" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="adType" class="form-label">Tip Anunț</label>
-                    <InputSelect id="adType" class="form-select" @bind-Value="createModel.AdType">
-                        <option value="@AdType.Rent">Închiriere (Rent)</option>
-                        <option value="@AdType.Sale">Vânzare (Sale)</option>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tip Anunț</label>
+                    <InputSelect @bind-Value="adModel.AdType" class="form-select">
+                        <option value="Rent">Închiriere (Rent)</option>
+                        <option value="Sale">Vânzare (Sale)</option>
                     </InputSelect>
                 </div>
-
-                <div class="mb-3">
-                    <label for="price" class="form-label">Preț (€)</label>
-                    <InputNumber id="price" class="form-control" @bind-Value="createModel.Price" />
-                    <ValidationMessage For="@(() => createModel.Price)" />
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Preț (€)</label>
+                    <InputNumber @bind-Value="adModel.Price" class="form-control" />
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">Descriere</label>
-                    <InputTextArea id="description" class="form-control" rows="4" @bind-Value="createModel.Description" />
-                    <ValidationMessage For="@(() => createModel.Description)" />
-                </div>
+            <div class="mb-3">
+                <label class="form-label">Descriere</label>
+                <InputTextArea @bind-Value="adModel.Description" class="form-control" rows="4" />
+            </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="my-ads" class="btn btn-outline-secondary">Anulează</a>
-                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                        @if (isSubmitting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                            <span>Se salvează...</span>
-                        }
-                        else
-                        {
-                            <span>Salvează Anunțul</span>
-                        }
-                    </button>
-                </div>
-            </EditForm>
-        </div>
+            <div class="d-flex justify-content-end gap-2">
+                <a href="ads" class="btn btn-outline-secondary">Anulează</a>
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                    @(isSubmitting ? "Se salvează..." : "Salvează Anunțul")
+                </button>
+            </div>
+        </EditForm>
     </div>
 </div>
 
 @code {
-    private CreateAdRequest createModel = new();
-    private string? errorMessage;
-    private bool isSubmitting;
+    private CreateAdRequest adModel = new();
+    private List<CarDto> userCars = new();
+    private bool isSubmitting = false;
 
-    private string CarIdString
+    protected override async Task OnInitializedAsync()
     {
-        get => createModel.CarId == Guid.Empty ? string.Empty : createModel.CarId.ToString();
-        set => createModel.CarId = Guid.TryParse(value, out var g) ? g : Guid.Empty;
+        userCars = await CarService.GetMyCarsAsync();
     }
 
     private async Task HandleSubmit()
     {
+        if (adModel.CarId == Guid.Empty) return;
+
         isSubmitting = true;
-        errorMessage = null;
 
-        var adId = await AdService.CreateAdAsync(createModel);
-
-        if (adId.HasValue && adId.Value != Guid.Empty)
-        {
-            NavigationManager.NavigateTo($"ads/{adId.Value}");
-        }
-        else
-        {
-            errorMessage = "Nu s-a putut crea anunțul. Asigură-te că datele sunt valide.";
-        }
+        var createdId = await AdService.CreateAdAsync(adModel);
 
         isSubmitting = false;
+
+        if (createdId != null)
+        {
+            Navigation.NavigateTo("/ads");
+        }
     }
 }

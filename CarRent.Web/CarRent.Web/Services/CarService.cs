@@ -13,6 +13,12 @@ public class CarService
         _httpClient = httpClient;
     }
 
+    public async Task<List<CarDto>> GetMyCarsAsync()
+    {
+        var result = await GetCarsAsync(1, 100);
+        return result?.Items ?? new List<CarDto>();
+    }
+
     public async Task<PagedResult<CarDto>?> GetCarsAsync(int pageNumber = 1, int pageSize = 10)
     {
         try

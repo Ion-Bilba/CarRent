@@ -1,0 +1,248 @@
+﻿@page "/admin"
+@attribute [Authorize(Roles = "Admin")]
+@using CarRent.Web.Models.Users
+@using CarRent.Web.Models.Ads
+@using CarRent.Web.Models.Cars
+@using CarRent.Web.Models.Common
+@inject UserService UserService
+@inject AdService AdService
+@inject CarService CarService
+
+<PageTitle>CarRent - Panou Administrare</PageTitle>
+
+<h3 class="mb-4">Panou Administrare</h3>
+
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "users" ? "active fw-bold" : "")" @onclick='() => SetTab("users")'>
+            Utilizatori
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "ads" ? "active fw-bold" : "")" @onclick='() => SetTab("ads")'>
+            Anunțuri
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "cars" ? "active fw-bold" : "")" @onclick='() => SetTab("cars")'>
+            Mașini
+        </button>
+    </li>
+</ul>
+
+@if (!string.IsNullOrEmpty(alertMessage))
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @alertMessage
+        <button type="button" class="btn-close" @onclick="() => alertMessage = null"></button>
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Se încarcă datele administrative...</p>
+    </div>
+}
+else if (activeTab == "users")
+{
+    <div class="card shadow-sm border-0 p-3">
+        <h5 class="mb-3">Lista Utilizatori</h5>
+        @if (users == null || !users.Any())
+        {
+            <div class="alert alert-warning mb-0">Nu există utilizatori înregistrați.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nume Complet</th>
+                            <th>Email</th>
+                            <th>Telefon</th>
+                            <th>ID Utilizator</th>
+                            <th class="text-end">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <td class="fw-bold">@user.FirstName @user.LastName</td>
+                                <td>@user.Email</td>
+                                <td>@(string.IsNullOrEmpty(user.PhoneNumber) ? "-" : user.PhoneNumber)</td>
+                                <td><small class="text-muted">@user.Id</small></td>
+                                <td class="text-end">
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteUser(user.Id)">Șterge</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+else if (activeTab == "ads")
+{
+    <div class="card shadow-sm border-0 p-3">
+        <h5 class="mb-3">Lista Anunțuri</h5>
+        @if (ads == null || !ads.Any())
+        {
+            <div class="alert alert-warning mb-0">Nu există anunțuri în baza de date.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Titlu</th>
+                            <th>Tip</th>
+                            <th>Preț</th>
+                            <th>ID Proprietar</th>
+                            <th class="text-end">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ad in ads)
+                        {
+                            <tr>
+                                <td class="fw-bold">@ad.Title</td>
+                                <td>
+                                    <span class="badge @((AdType)ad.AdType == AdType.Sale ? "bg-success" : "bg-warning text-dark")">
+                                        @((AdType)ad.AdType == AdType.Sale ? "Vânzare" : "Închiriere")
+                                    </span>
+                                </td>
+                                <td class="text-primary fw-bold">€@ad.Price.ToString("N0")</td>
+                                <td><small class="text-muted">@ad.UserId</small></td>
+                                <td class="text-end">
+                                    <a href="ads/@ad.Id" class="btn btn-outline-primary btn-sm me-1">Vezi</a>
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteAd(ad.Id)">Șterge</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+else if (activeTab == "cars")
+{
+    <div class="card shadow-sm border-0 p-3">
+        <h5 class="mb-3">Lista Mașini</h5>
+        @if (cars == null || !cars.Any())
+        {
+            <div class="alert alert-warning mb-0">Nu există mașini în baza de date.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Marcă & Model</th>
+                            <th>An</th>
+                            <th>Culoare</th>
+                            <th>Rulaj</th>
+                            <th>ID Mașină</th>
+                            <th class="text-end">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var car in cars)
+                        {
+                            <tr>
+                                <td class="fw-bold">@car.Brand @car.Model</td>
+                                <td>@car.Year</td>
+                                <td>@car.Color</td>
+                                <td>@car.Mileage.ToString("N0") km</td>
+                                <td><small class="text-muted">@car.Id</small></td>
+                                <td class="text-end">
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCar(car.Id)">Șterge</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private string activeTab = "users";
+    private bool isLoading = true;
+    private string? alertMessage;
+
+    private List<UserDto>? users;
+    private List<AdDto>? ads;
+    private List<CarDto>? cars;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTabData();
+    }
+
+    private async Task SetTab(string tab)
+    {
+        activeTab = tab;
+        await LoadTabData();
+    }
+
+    private async Task LoadTabData()
+    {
+        isLoading = true;
+        alertMessage = null;
+
+        if (activeTab == "users")
+        {
+            users = await UserService.GetAllUsersAsync();
+        }
+        else if (activeTab == "ads")
+        {
+            var paged = await AdService.GetAdsAsync(1, 100);
+            ads = paged?.Items;
+        }
+        else if (activeTab == "cars")
+        {
+            var paged = await CarService.GetCarsAsync(1, 100);
+            cars = paged?.Items;
+        }
+
+        isLoading = false;
+    }
+
+    private async Task DeleteUser(Guid id)
+    {
+        var success = await UserService.DeleteUserAsync(id);
+        if (success)
+        {
+            alertMessage = "Utilizatorul a fost șters cu succes.";
+            await LoadTabData();
+        }
+    }
+
+    private async Task DeleteAd(Guid id)
+    {
+        var success = await AdService.DeleteAdAsync(id);
+        if (success)
+        {
+            alertMessage = "Anunțul a fost șters cu succes.";
+            await LoadTabData();
+        }
+    }
+
+    private async Task DeleteCar(Guid id)
+    {
+        var success = await CarService.DeleteCarAsync(id);
+        if (success)
+        {
+            alertMessage = "Autovehiculul a fost șters cu succes.";
+            await LoadTabData();
+        }
+    }
+}

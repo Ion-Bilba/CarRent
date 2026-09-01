@@ -13,11 +13,17 @@ public class AdService
         _httpClient = httpClient;
     }
 
-    public async Task<PagedResult<AdDto>?> GetAdsAsync(int pageNumber = 1, int pageSize = 10)
+    public async Task<PagedResult<AdDto>?> GetAdsAsync(int pageNumber = 1, int pageSize = 10, AdType? adType = null)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>($"api/Ads?PageNumber={pageNumber}&PageSize={pageSize}");
+            var url = $"api/Ads?PageNumber={pageNumber}&PageSize={pageSize}";
+            if (adType.HasValue)
+            {
+                url += $"&AdType={adType.Value}";
+            }
+
+            return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>(url);
         }
         catch
         {
