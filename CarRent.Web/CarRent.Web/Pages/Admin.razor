@@ -209,8 +209,7 @@ else if (activeTab == "cars")
         }
         else if (activeTab == "cars")
         {
-            var paged = await CarService.GetCarsAsync(1, 100);
-            cars = paged?.Items;
+            cars = await CarService.GetCarsAsync();
         }
 
         isLoading = false;

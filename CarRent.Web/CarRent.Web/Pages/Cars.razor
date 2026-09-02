@@ -189,11 +189,7 @@ else
     private async Task LoadCars()
     {
         isLoading = true;
-        var result = await CarService.GetCarsAsync(1, 100);
-        if (result != null)
-        {
-            cars = result.Items;
-        }
+        cars = await CarService.GetCarsAsync();
         isLoading = false;
     }
 

@@ -5,6 +5,7 @@ using CarRent.Application.Features.Cars.Commands.DeleteCar;
 using CarRent.Application.Features.Cars.Commands.UpdateCar;
 using CarRent.Application.Features.Cars.Queries.GetCarById;
 using CarRent.Application.Features.Cars.Queries.GetCarsQuery;
+using CarRent.Application.Features.Cars.Queries.GetMyCars;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,6 +87,17 @@ namespace CarRent.API.Controllers
         public async Task<IActionResult> GetAll([FromQuery] GetCarsQuery query, CancellationToken cancellationToken)
         {
             var cars = await _mediator.Send(query, cancellationToken);
+            return Ok(cars);
+        }
+
+        [Authorize]
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyCars( CancellationToken cancellationToken)
+        {
+            var cars = await _mediator.Send(
+                new GetMyCarsQuery(),
+                cancellationToken);
+
             return Ok(cars);
         }
     }
