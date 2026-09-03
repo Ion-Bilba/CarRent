@@ -13,23 +13,24 @@ public class CarService
         _httpClient = httpClient;
     }
 
+    public async Task<List<CarDto>> GetMyCarsAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<CarDto>>("api/Cars/mine", JsonOptions.Default);
+            return result ?? new List<CarDto>();
+        }
+        catch
+        {
+            return new List<CarDto>();
+        }
+    }
+
     public async Task<List<CarDto>?> GetCarsAsync()
     {
         try
         {
             return await _httpClient.GetFromJsonAsync<List<CarDto>>("api/Cars", JsonOptions.Default);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public async Task<PagedResult<CarDto>?> GetCarsAsync(int pageNumber = 1, int pageSize = 10)
-    {
-        try
-        {
-            return await _httpClient.GetFromJsonAsync<PagedResult<CarDto>>($"api/Cars?PageNumber={pageNumber}&PageSize={pageSize}", JsonOptions.Default);
         }
         catch
         {

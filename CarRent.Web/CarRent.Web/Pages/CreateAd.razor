@@ -4,78 +4,142 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject CarService CarService
 @inject AdService AdService
+@inject AdImageService AdImageService
 @inject NavigationManager Navigation
 
 <div class="container mt-4" style="max-width: 700px;">
     <div class="card shadow-sm p-4">
-        <h3 class="mb-4">Adaugă un anunț nou</h3>
+        @if (createdAdId == null)
+        {
+            <h3 class="mb-4">Adaugă un anunț nou</h3>
 
-        <EditForm Model="@adModel" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
+            <EditForm Model="@adModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
 
-            <!-- Selectare Mașină din DB -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">Selectează Mașina</label>
-                @if (userCars == null)
-                {
-                    <p><em>Se încarcă mașinile tale...</em></p>
-                }
-                else if (!userCars.Any())
-                {
-                    <div class="alert alert-warning">
-                        Nu ai nicio mașină înregistrată. <a href="cars/create">Adaugă mai întâi o mașină</a>.
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Selectează Mașina</label>
+                    @if (userCars == null)
+                    {
+                        <p><em>Se încarcă mașinile tale...</em></p>
+                    }
+                    else if (!userCars.Any())
+                    {
+                        <div class="alert alert-warning">
+                            Nu ai nicio mașină înregistrată. <a href="cars">Adaugă mai întâi o mașină</a>.
+                        </div>
+                    }
+                    else
+                    {
+                        <InputSelect @bind-Value="adModel.CarId" class="form-select">
+                            <option value="">-- Alege o mașină --</option>
+                            @foreach (var car in userCars)
+                            {
+                                <option value="@car.Id">@car.Brand @car.Model (@car.Year)</option>
+                            }
+                        </InputSelect>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Titlu Anunț</label>
+                    <InputText @bind-Value="adModel.Title" class="form-control" placeholder="ex: BMW M5 F90 stare impecabilă" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tip Anunț</label>
+                        <InputSelect @bind-Value="adModel.AdType" class="form-select">
+                            <option value="Rent">Închiriere (Rent)</option>
+                            <option value="Sale">Vânzare (Sale)</option>
+                        </InputSelect>
                     </div>
-                }
-                else
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Preț (€)</label>
+                        <InputNumber @bind-Value="adModel.Price" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Descriere</label>
+                    <InputTextArea @bind-Value="adModel.Description" class="form-control" rows="4" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <InputSelect @bind-Value="adModel.CarId" class="form-select">
-                        <option value="">-- Alege o mașină --</option>
-                        @foreach (var car in userCars)
-                        {
-                            <option value="@car.Id">@car.Brand @car.Model (@car.Year)</option>
-                        }
-                    </InputSelect>
+                    <div class="alert alert-danger">@errorMessage</div>
                 }
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Titlu Anunț</label>
-                <InputText @bind-Value="adModel.Title" class="form-control" placeholder="ex: BMW M5 F90 stare impecabilă" />
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Tip Anunț</label>
-                    <InputSelect @bind-Value="adModel.AdType" class="form-select">
-                        <option value="Rent">Închiriere (Rent)</option>
-                        <option value="Sale">Vânzare (Sale)</option>
-                    </InputSelect>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="ads" class="btn btn-outline-secondary">Anulează</a>
+                    <button type="submit" class="btn btn-primary" disabled="@(isSubmitting || userCars == null || !userCars.Any())">
+                        @(isSubmitting ? "Se salvează..." : "Continuă")
+                    </button>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Preț (€)</label>
-                    <InputNumber @bind-Value="adModel.Price" class="form-control" />
+            </EditForm>
+        }
+        else
+        {
+            <h3 class="mb-2">Adaugă imagini</h3>
+            <p class="text-muted">Anunțul a fost creat. Adaugă până la 20 de imagini (JPG, JPEG, PNG sau WEBP, maximum 5&nbsp;MB fiecare).</p>
+
+            <InputFile OnChange="HandleFilesSelected" multiple class="form-control mb-3" accept=".jpg,.jpeg,.png,.webp" disabled="@(uploadedCount >= MaxImages || isUploading)" />
+
+            @if (isUploading)
+            {
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <span>Se încarcă imaginile... (@uploadedCount/@totalToUpload)</span>
                 </div>
-            </div>
+            }
 
-            <div class="mb-3">
-                <label class="form-label">Descriere</label>
-                <InputTextArea @bind-Value="adModel.Description" class="form-control" rows="4" />
-            </div>
+            @if (uploadErrors.Any())
+            {
+                <div class="alert alert-warning">
+                    <ul class="mb-0">
+                        @foreach (var err in uploadErrors)
+                        {
+                            <li>@err</li>
+                        }
+                    </ul>
+                </div>
+            }
 
-            <div class="d-flex justify-content-end gap-2">
-                <a href="ads" class="btn btn-outline-secondary">Anulează</a>
-                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                    @(isSubmitting ? "Se salvează..." : "Salvează Anunțul")
+            @if (uploadedFileNames.Any())
+            {
+                <ul class="list-group mb-3">
+                    @foreach (var name in uploadedFileNames)
+                    {
+                        <li class="list-group-item d-flex align-items-center gap-2">
+                            <span class="text-success">✔</span> @name
+                        </li>
+                    }
+                </ul>
+                <p class="text-success">@uploadedFileNames.Count imagine(i) încărcată(e) cu succes.</p>
+            }
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="btn btn-primary" @onclick="FinishWizard">
+                    @(uploadedFileNames.Any() ? "Finalizează" : "Sari peste (fără imagini)")
                 </button>
             </div>
-        </EditForm>
+        }
     </div>
 </div>
 
 @code {
+    private const int MaxImages = 20;
+
     private CreateAdRequest adModel = new();
-    private List<CarDto> userCars = new();
+    private List<CarDto>? userCars;
     private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private Guid? createdAdId;
+    private bool isUploading = false;
+    private int uploadedCount = 0;
+    private int totalToUpload = 0;
+    private List<string> uploadErrors = new();
+    private List<string> uploadedFileNames = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,8 +148,13 @@
 
     private async Task HandleSubmit()
     {
-        if (adModel.CarId == Guid.Empty) return;
+        if (adModel.CarId == Guid.Empty)
+        {
+            errorMessage = "Trebuie să selectezi o mașină.";
+            return;
+        }
 
+        errorMessage = null;
         isSubmitting = true;
 
         var createdId = await AdService.CreateAdAsync(adModel);
@@ -94,7 +163,77 @@
 
         if (createdId != null)
         {
-            Navigation.NavigateTo("/ads");
+            createdAdId = createdId;
         }
+        else
+        {
+            errorMessage = "Nu am putut salva anunțul. Încearcă din nou.";
+        }
+    }
+
+    private async Task HandleFilesSelected(InputFileChangeEventArgs e)
+    {
+        if (createdAdId == null) return;
+
+        uploadErrors.Clear();
+        var remainingSlots = MaxImages - uploadedCount;
+
+        if (remainingSlots <= 0)
+        {
+            uploadErrors.Add($"Ai atins limita de {MaxImages} de imagini per anunț.");
+            return;
+        }
+
+        var allSelected = e.GetMultipleFiles(e.FileCount);
+        var files = allSelected.Take(remainingSlots).ToList();
+
+        if (allSelected.Count > remainingSlots)
+        {
+            uploadErrors.Add($"Poți încărca maximum {MaxImages} de imagini per anunț — s-au păstrat doar primele {remainingSlots}.");
+        }
+
+        if (files.Count == 0)
+        {
+            return;
+        }
+
+        isUploading = true;
+        totalToUpload = files.Count;
+        var startOrder = uploadedCount;
+
+        for (int i = 0; i < files.Count; i++)
+        {
+            var file = files[i];
+
+            if (file.Size > AdImageService.MaxFileSizeBytes)
+            {
+                uploadErrors.Add($"{file.Name}: depășește 5 MB.");
+                continue;
+            }
+
+            if (!AdImageService.AllowedContentTypes.Contains(file.ContentType))
+            {
+                uploadErrors.Add($"{file.Name}: format neacceptat (doar JPG, JPEG, PNG, WEBP).");
+                continue;
+            }
+
+            var imageId = await AdImageService.UploadImageAsync(createdAdId.Value, file, startOrder + i + 1);
+            if (imageId != null)
+            {
+                uploadedCount++;
+                uploadedFileNames.Add(file.Name);
+            }
+            else
+            {
+                uploadErrors.Add($"{file.Name}: încărcarea a eșuat.");
+            }
+        }
+
+        isUploading = false;
+    }
+
+    private void FinishWizard()
+    {
+        Navigation.NavigateTo("/ads");
     }
 }

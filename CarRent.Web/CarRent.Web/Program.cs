@@ -32,5 +32,6 @@ builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<AdImageService>();
 
 await builder.Build().RunAsync();
