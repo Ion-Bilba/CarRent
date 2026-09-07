@@ -17,14 +17,17 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
         {
             var ad = await _context.Ads
      .Include(c => c.Car)
+     .Include(c => c.AdImages)
      .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
-            if (ad==null)
+            if (ad == null)
             {
                 return null;
             }
             ad.Views++;
             await _context.SaveChangesAsync(cancellationToken);
+
+            var orderedImages = ad.AdImages.OrderBy(i => i.DisplayOrder).ToList();
 
             return new AdDto
             {
@@ -38,11 +41,12 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
                 IsActive = ad.IsActive,
                 Views = ad.Views,
                 CreatedAt = ad.CreatedAt,
-                TractionType=ad.Car.TractionType
+                TractionType = ad.Car.TractionType,
+                MainImageUrl = orderedImages.FirstOrDefault()?.ImageUrl,
+                AdImages = orderedImages
+                    .Select(img => new AdImageDto(img.Id, img.AdId, img.ImageUrl, img.DisplayOrder))
+                    .ToList()
             };
-
-
-
         }
     }
 }

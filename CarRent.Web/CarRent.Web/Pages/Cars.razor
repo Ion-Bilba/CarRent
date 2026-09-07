@@ -8,7 +8,7 @@
 <PageTitle>CarRent - Automobile</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Automobile</h3>
+    <h3>Mașinile mele</h3>
     <AuthorizeView>
         <Authorized>
             <button class="btn btn-primary" @onclick="ToggleCreateForm">
@@ -116,7 +116,7 @@
 else if (cars == null || !cars.Any())
 {
     <div class="alert alert-info">
-        Nu au fost găsite autovehicule în baza de date.
+        Nu ai adăugat încă nicio mașină.
     </div>
 }
 else
@@ -132,12 +132,7 @@ else
                     <th>Motor</th>
                     <th>Cutie</th>
                     <th>Tracțiune</th>
-                    <th>ID Mașină</th>
-                    <AuthorizeView>
-                        <Authorized>
-                            <th class="text-end">Acțiuni</th>
-                        </Authorized>
-                    </AuthorizeView>
+                    <th class="text-end">Acțiuni</th>
                 </tr>
             </thead>
             <tbody>
@@ -151,17 +146,9 @@ else
                         <td>@car.EngineCapacity cm³ (@car.FuelType)</td>
                         <td>@car.Transmission</td>
                         <td>@car.TractionType</td>
-                        <td><small class="text-muted">@car.Id</small></td>
-                        <AuthorizeView>
-                            <Authorized Context="authContext">
-                                <td class="text-end">
-                                    @if (car.UserId == currentUserId)
-                                    {
-                                        <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCar(car.Id)">Șterge</button>
-                                    }
-                                </td>
-                            </Authorized>
-                        </AuthorizeView>
+                        <td class="text-end">
+                            <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCar(car.Id)">Șterge</button>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -175,21 +162,16 @@ else
     private bool isLoading = true;
     private bool showCreateForm = false;
     private bool isSubmitting = false;
-    private Guid currentUserId = Guid.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Guid.TryParse(userIdClaim, out currentUserId);
-
         await LoadCars();
     }
 
     private async Task LoadCars()
     {
         isLoading = true;
-        cars = await CarService.GetCarsAsync();
+        cars = await CarService.GetMyCarsAsync();
         isLoading = false;
     }
 

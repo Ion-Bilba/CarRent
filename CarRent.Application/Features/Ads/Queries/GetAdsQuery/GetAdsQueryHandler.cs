@@ -69,7 +69,11 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
                 TractionType = ad.Car.TractionType,
                 IsActive = ad.IsActive,
                 Views = ad.Views,
-                CreatedAt = ad.CreatedAt
+                CreatedAt = ad.CreatedAt,
+                MainImageUrl = ad.AdImages
+                .OrderBy(i => i.DisplayOrder)
+                .Select(i => i.ImageUrl)
+                .FirstOrDefault()
             })
             .ToListAsync(cancellationToken);
 

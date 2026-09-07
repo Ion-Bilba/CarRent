@@ -85,4 +85,17 @@ public class AdService
             return false;
         }
     }
+
+    public async Task<List<AdDto>> GetMyAdsAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<AdDto>>("api/Ads/mine", JsonOptions.Default);
+            return result ?? new List<AdDto>();
+        }
+        catch
+        {
+            return new List<AdDto>();
+        }
+    }
 }

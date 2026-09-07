@@ -5,6 +5,7 @@ using CarRent.Application.Features.Ads.Commands.UpdateAd;
 using CarRent.Application.Features.Ads.Commands.UpdateAdCommand;
 using CarRent.Application.Features.Ads.Queries.GetAdById;
 using CarRent.Application.Features.Ads.Queries.GetAdsQuery;
+using CarRent.Application.Features.Ads.Queries.GetMyAds;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -83,6 +84,13 @@ public class AdsController : ControllerBase
             return NotFound($"Anunțul cu ID-ul {Id} nu a fost găsit.");
         }
         return Ok(result);
+    }
+    [Authorize]
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetMyAds(CancellationToken cancellationToken)
+    {
+        var ads = await _mediator.Send(new GetMyAdsQuery(), cancellationToken);
+        return Ok(ads);
     }
 
 } 

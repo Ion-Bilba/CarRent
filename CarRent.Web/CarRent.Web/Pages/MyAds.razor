@@ -1,10 +1,7 @@
 ﻿@page "/my-ads"
 @attribute [Authorize]
-@using System.Security.Claims
 @using CarRent.Web.Models.Ads
-@using CarRent.Web.Models.Common
 @inject AdService AdService
-@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <PageTitle>CarRent - Anunțurile mele</PageTitle>
@@ -39,7 +36,7 @@ else
                         @((AdType)ad.AdType == AdType.Sale ? "Vânzare" : "Închiriere")
                     </span>
 
-                    <img src="@(string.IsNullOrEmpty(ad.MainImageUrl) ? "images/car-placeholder.png" : ad.MainImageUrl)"
+                    <img src="@ImageUrlHelper.Resolve(ad.MainImageUrl)"
                          class="card-img-top"
                          alt="@ad.Title"
                          style="height: 180px; object-fit: cover;" />
@@ -77,19 +74,7 @@ else
     private async Task LoadMyAds()
     {
         isLoading = true;
-
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var userIdClaim = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (Guid.TryParse(userIdClaim, out var currentUserId))
-        {
-            var pagedResult = await AdService.GetAdsAsync(1, 100);
-            if (pagedResult != null)
-            {
-                myAds = pagedResult.Items.Where(a => a.UserId == currentUserId).ToList();
-            }
-        }
-
+        myAds = await AdService.GetMyAdsAsync();
         isLoading = false;
     }
 

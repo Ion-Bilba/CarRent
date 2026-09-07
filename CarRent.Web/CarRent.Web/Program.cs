@@ -11,7 +11,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7088/";
-
+ImageUrlHelper.ApiBaseUrl = apiBaseUrl;
 
 builder.Services.AddTransient<CarRent.Web.Handlers.JwtAuthorizationHandler>();
 builder.Services.AddTransient<HttpErrorInterceptorHandler>();
@@ -28,10 +28,10 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdService>();
+builder.Services.AddScoped<AdImageService>();
 builder.Services.AddScoped<CarService>();
 builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<NotificationService>();
-builder.Services.AddScoped<AdImageService>();
 
 await builder.Build().RunAsync();

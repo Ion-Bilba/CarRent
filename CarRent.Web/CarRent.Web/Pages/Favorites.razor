@@ -28,7 +28,7 @@ else
         {
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 position-relative">
-                    <img src="@(string.IsNullOrEmpty(ad.MainImageUrl) ? "images/car-placeholder.png" : ad.MainImageUrl)"
+                    <img src="@ImageUrlHelper.Resolve(ad.MainImageUrl)"
                          class="card-img-top"
                          alt="@ad.Title"
                          style="height: 200px; object-fit: cover;" />
