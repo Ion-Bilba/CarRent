@@ -12,6 +12,12 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdsQuery
     decimal? MaxPrice = null,
     AdType? AdType = null,
     TractionType? TractionType = null,
+    string? Brand = null,
+    string? Model = null,
+    int? MinYear = null,
+    int? MaxYear = null,
+    FuelType? FuelType = null,
+    Transmission? Transmission = null,
     int PageNumber = 1,
     int PageSize = 10
     ): IRequest<PagedResult<AdDto>>;

@@ -42,10 +42,18 @@ namespace CarRent.Application.Features.Ads.Queries.GetAdById
                 Views = ad.Views,
                 CreatedAt = ad.CreatedAt,
                 TractionType = ad.Car.TractionType,
+                CarBrand = ad.Car.Brand,
+                CarModel = ad.Car.Model,
+                CarYear = ad.Car.Year,
+                CarColor = ad.Car.Color,
+                CarMileage = ad.Car.Mileage,
+                CarFuelType = ad.Car.FuelType,
+                CarEngineCapacity = ad.Car.EngineCapacity,
+                CarTransmission = ad.Car.Transmission,
                 MainImageUrl = orderedImages.FirstOrDefault()?.ImageUrl,
                 AdImages = orderedImages
-                    .Select(img => new AdImageDto(img.Id, img.AdId, img.ImageUrl, img.DisplayOrder))
-                    .ToList()
+                .Select(img => new AdImageDto(img.Id, img.AdId, img.ImageUrl, img.DisplayOrder))
+                .ToList()
             };
         }
     }

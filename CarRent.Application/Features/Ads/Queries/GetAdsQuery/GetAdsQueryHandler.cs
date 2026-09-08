@@ -49,6 +49,36 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
             ad = ad.Where(c => c.Car.TractionType == request.TractionType.Value);
         }
 
+        if (!string.IsNullOrWhiteSpace(request.Brand))
+        {
+            ad = ad.Where(c => c.Car.Brand.Contains(request.Brand));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Model))
+        {
+            ad = ad.Where(c => c.Car.Model.Contains(request.Model));
+        }
+
+        if (request.MinYear.HasValue)
+        {
+            ad = ad.Where(c => c.Car.Year >= request.MinYear.Value);
+        }
+
+        if (request.MaxYear.HasValue)
+        {
+            ad = ad.Where(c => c.Car.Year <= request.MaxYear.Value);
+        }
+
+        if (request.FuelType.HasValue)
+        {
+            ad = ad.Where(c => c.Car.FuelType == request.FuelType.Value);
+        }
+
+        if (request.Transmission.HasValue)
+        {
+            ad = ad.Where(c => c.Car.Transmission == request.Transmission.Value);
+        }
+
         var totalcount = await ad.CountAsync(cancellationToken);
         var pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
         var pageSize = request.PageSize > 0 ? request.PageSize : 10;
@@ -67,6 +97,14 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
                 Price = ad.Price,
                 AdType = ad.AdType,
                 TractionType = ad.Car.TractionType,
+                CarBrand = ad.Car.Brand,
+                CarModel = ad.Car.Model,
+                CarYear = ad.Car.Year,
+                CarColor = ad.Car.Color,
+                CarMileage = ad.Car.Mileage,
+                CarFuelType = ad.Car.FuelType,
+                CarEngineCapacity = ad.Car.EngineCapacity,
+                CarTransmission = ad.Car.Transmission,
                 IsActive = ad.IsActive,
                 Views = ad.Views,
                 CreatedAt = ad.CreatedAt,
@@ -80,9 +118,9 @@ public class GetAdsQueryHandler : IRequestHandler<GetAdsQuery, PagedResult<AdDto
 
         return new PagedResult<AdDto>(
     items: items,
-    pageNumber: pageNumber,     
-    pageSize: pageSize,         
-    totalCount: totalcount      
+    pageNumber: pageNumber,
+    pageSize: pageSize,
+    totalCount: totalcount
 );
     }
 }

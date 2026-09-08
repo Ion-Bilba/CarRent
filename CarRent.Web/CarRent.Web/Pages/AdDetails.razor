@@ -33,20 +33,43 @@ else
         <div class="row">
             <div class="col-lg-7">
                 <div class="card mb-4 shadow-sm border-0">
-                    <img src="@ImageUrlHelper.Resolve(ad.MainImageUrl)"
-                         class="img-fluid rounded-top"
-                         alt="@ad.Title"
-                         style="width: 100%; max-height: 400px; object-fit: cover;" />
+                    <div class="position-relative">
+                        <img src="@ImageUrlHelper.Resolve(CurrentImageUrl)"
+                             class="img-fluid rounded-top"
+                             alt="@ad.Title"
+                             style="width: 100%; height: 400px; object-fit: cover;" />
 
-                    @if (ad.AdImages != null && ad.AdImages.Any())
+                        @if (ad.AdImages != null && ad.AdImages.Count > 1)
+                        {
+                            <button type="button"
+                                    class="btn btn-light btn-sm position-absolute top-50 start-0 translate-middle-y ms-2 rounded-circle shadow-sm"
+                                    style="width: 40px; height: 40px;"
+                                    @onclick="ShowPreviousImage">
+                                &larr;
+                            </button>
+                            <button type="button"
+                                    class="btn btn-light btn-sm position-absolute top-50 end-0 translate-middle-y me-2 rounded-circle shadow-sm"
+                                    style="width: 40px; height: 40px;"
+                                    @onclick="ShowNextImage">
+                                &rarr;
+                            </button>
+                            <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">
+                                @(selectedImageIndex + 1) / @ad.AdImages.Count
+                            </span>
+                        }
+                    </div>
+
+                    @if (ad.AdImages != null && ad.AdImages.Count > 1)
                     {
                         <div class="d-flex gap-2 p-2 overflow-auto">
-                            @foreach (var img in ad.AdImages)
+                            @for (int i = 0; i < ad.AdImages.Count; i++)
                             {
-                                <img src="@ImageUrlHelper.Resolve(img.ImageUrl)"
-                                     class="img-thumbnail"
+                                var index = i;
+                                <img src="@ImageUrlHelper.Resolve(ad.AdImages[index].ImageUrl)"
+                                     class="img-thumbnail @(index == selectedImageIndex ? "border-primary border-2" : "")"
                                      style="width: 80px; height: 60px; object-fit: cover; cursor: pointer;"
-                                     alt="Thumb" />
+                                     alt="Thumb @(index + 1)"
+                                     @onclick="() => SelectImage(index)" />
                             }
                         </div>
                     }
@@ -70,6 +93,20 @@ else
 
                     <hr />
 
+                    <h5 class="fw-bold">Specificații</h5>
+                    <table class="table table-sm mb-4">
+                        <tbody>
+                            <tr><td class="text-muted">Marcă & Model</td><td class="fw-bold">@ad.CarBrand @ad.CarModel</td></tr>
+                            <tr><td class="text-muted">An fabricație</td><td>@ad.CarYear</td></tr>
+                            <tr><td class="text-muted">Culoare</td><td>@ad.CarColor</td></tr>
+                            <tr><td class="text-muted">Rulaj</td><td>@ad.CarMileage.ToString("N0") km</td></tr>
+                            <tr><td class="text-muted">Capacitate motor</td><td>@ad.CarEngineCapacity cm³</td></tr>
+                            <tr><td class="text-muted">Combustibil</td><td>@ad.CarFuelType</td></tr>
+                            <tr><td class="text-muted">Transmisie</td><td>@ad.CarTransmission</td></tr>
+                            <tr><td class="text-muted">Tracțiune</td><td>@ad.TractionType</td></tr>
+                        </tbody>
+                    </table>
+
                     <h5 class="fw-bold">Descriere</h5>
                     <p class="text-muted">@ad.Description</p>
 
@@ -90,6 +127,12 @@ else
     private AdDto? ad;
     private bool isLoading = true;
     private bool isFavorite;
+    private int selectedImageIndex = 0;
+
+    private string? CurrentImageUrl =>
+        ad?.AdImages != null && ad.AdImages.Count > 0
+            ? ad.AdImages[selectedImageIndex].ImageUrl
+            : ad?.MainImageUrl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,6 +145,23 @@ else
         }
 
         isLoading = false;
+    }
+
+    private void SelectImage(int index)
+    {
+        selectedImageIndex = index;
+    }
+
+    private void ShowNextImage()
+    {
+        if (ad?.AdImages == null || ad.AdImages.Count == 0) return;
+        selectedImageIndex = (selectedImageIndex + 1) % ad.AdImages.Count;
+    }
+
+    private void ShowPreviousImage()
+    {
+        if (ad?.AdImages == null || ad.AdImages.Count == 0) return;
+        selectedImageIndex = (selectedImageIndex - 1 + ad.AdImages.Count) % ad.AdImages.Count;
     }
 
     private async Task ToggleFavorite()

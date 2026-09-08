@@ -13,16 +13,27 @@ public class AdService
         _httpClient = httpClient;
     }
 
-    public async Task<PagedResult<AdDto>?> GetAdsAsync(int pageNumber = 1, int pageSize = 10, AdType? adType = null)
+    public async Task<PagedResult<AdDto>?> GetAdsAsync(int pageNumber = 1, int pageSize = 10, AdFilter? filter = null)
     {
         try
         {
-            var url = $"api/Ads?PageNumber={pageNumber}&PageSize={pageSize}";
-            if (adType.HasValue)
+            var query = new List<string> { $"PageNumber={pageNumber}", $"PageSize={pageSize}" };
+
+            if (filter != null)
             {
-                url += $"&AdType={adType.Value}";
+                if (filter.AdType.HasValue) query.Add($"AdType={filter.AdType.Value}");
+                if (filter.TractionType.HasValue) query.Add($"TractionType={filter.TractionType.Value}");
+                if (filter.FuelType.HasValue) query.Add($"FuelType={filter.FuelType.Value}");
+                if (filter.Transmission.HasValue) query.Add($"Transmission={filter.Transmission.Value}");
+                if (!string.IsNullOrWhiteSpace(filter.Brand)) query.Add($"Brand={Uri.EscapeDataString(filter.Brand)}");
+                if (!string.IsNullOrWhiteSpace(filter.Model)) query.Add($"Model={Uri.EscapeDataString(filter.Model)}");
+                if (filter.MinYear.HasValue) query.Add($"MinYear={filter.MinYear.Value}");
+                if (filter.MaxYear.HasValue) query.Add($"MaxYear={filter.MaxYear.Value}");
+                if (filter.MinPrice.HasValue) query.Add($"MinPrice={filter.MinPrice.Value}");
+                if (filter.MaxPrice.HasValue) query.Add($"MaxPrice={filter.MaxPrice.Value}");
             }
 
+            var url = $"api/Ads?{string.Join("&", query)}";
             return await _httpClient.GetFromJsonAsync<PagedResult<AdDto>>(url, JsonOptions.Default);
         }
         catch

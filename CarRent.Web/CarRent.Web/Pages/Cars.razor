@@ -1,14 +1,12 @@
 ﻿@page "/cars"
-@using System.Security.Claims
 @using CarRent.Web.Models.Cars
-@using CarRent.Web.Models.Common
 @inject CarService CarService
-@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>CarRent - Automobile</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3>Mașinile mele</h3>
+
     <AuthorizeView>
         <Authorized>
             <button class="btn btn-primary" @onclick="ToggleCreateForm">
@@ -21,96 +19,152 @@
 @if (showCreateForm)
 {
     <div class="card shadow-sm border-0 mb-4 p-4">
+
         <h5 class="mb-3">Adaugă un autovehicul nou</h5>
-        <EditForm Model="@createModel" OnValidSubmit="HandleCreateCar">
+
+        <EditForm Model="@createModel"
+                  OnValidSubmit="HandleCreateCar">
+
             <DataAnnotationsValidator />
 
             <div class="row">
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Marcă</label>
-                    <InputText class="form-control" @bind-Value="createModel.Brand" placeholder="ex: BMW" />
-                    <ValidationMessage For="@(() => createModel.Brand)" />
+
+                    <InputText class="form-control"
+                               @bind-Value="createModel.Brand"
+                               placeholder="ex: BMW" />
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Model</label>
-                    <InputText class="form-control" @bind-Value="createModel.Model" placeholder="ex: M5 F90" />
-                    <ValidationMessage For="@(() => createModel.Model)" />
+
+                    <InputText class="form-control"
+                               @bind-Value="createModel.Model"
+                               placeholder="ex: M5" />
                 </div>
+
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">An Fabricație</label>
-                    <InputNumber class="form-control" @bind-Value="createModel.Year" />
-                    <ValidationMessage For="@(() => createModel.Year)" />
+                    <label class="form-label">An fabricație</label>
+
+                    <InputNumber class="form-control"
+                                 @bind-Value="createModel.Year" />
                 </div>
+
             </div>
 
             <div class="row">
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Culoare</label>
-                    <InputText class="form-control" @bind-Value="createModel.Color" />
-                    <ValidationMessage For="@(() => createModel.Color)" />
+
+                    <InputText class="form-control"
+                               @bind-Value="createModel.Color"
+                               placeholder="ex: Negru" />
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Rulaj (km)</label>
-                    <InputNumber class="form-control" @bind-Value="createModel.Mileage" />
-                    <ValidationMessage For="@(() => createModel.Mileage)" />
+
+                    <InputNumber class="form-control"
+                                 @bind-Value="createModel.Mileage" />
                 </div>
+
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">Capacitate Motor (cm³)</label>
-                    <InputNumber class="form-control" @bind-Value="createModel.EngineCapacity" />
-                    <ValidationMessage For="@(() => createModel.EngineCapacity)" />
+                    <label class="form-label">
+                        Capacitate motor (cm³)
+                    </label>
+
+                    <InputNumber class="form-control"
+                                 @bind-Value="createModel.EngineCapacity" />
                 </div>
+
             </div>
 
             <div class="row">
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Combustibil</label>
-                    <InputSelect class="form-select" @bind-Value="createModel.FuelType">
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="createModel.FuelType">
+
                         @foreach (var fuel in Enum.GetValues<FuelType>())
                         {
                             <option value="@fuel">@fuel</option>
                         }
+
                     </InputSelect>
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Transmisie</label>
-                    <InputSelect class="form-select" @bind-Value="createModel.Transmission">
-                        @foreach (var trans in Enum.GetValues<Transmission>())
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="createModel.Transmission">
+
+                        @foreach (var transmission in Enum.GetValues<Transmission>())
                         {
-                            <option value="@trans">@trans</option>
+                            <option value="@transmission">
+                                @transmission
+                            </option>
                         }
+
                     </InputSelect>
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Tracțiune</label>
-                    <InputSelect class="form-select" @bind-Value="createModel.TractionType">
-                        @foreach (var trac in Enum.GetValues<TractionType>())
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="createModel.TractionType">
+
+                        @foreach (var traction in Enum.GetValues<TractionType>())
                         {
-                            <option value="@trac">@trac</option>
+                            <option value="@traction">@traction</option>
                         }
+
                     </InputSelect>
                 </div>
+
             </div>
 
-            <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+            <button type="submit"
+                    class="btn btn-success"
+                    disabled="@isSubmitting">
+
                 @if (isSubmitting)
                 {
-                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <span class="spinner-border spinner-border-sm me-2"
+                          role="status"></span>
+
                     <span>Se salvează...</span>
                 }
                 else
                 {
                     <span>Salvează Mașina</span>
                 }
+
             </button>
+
         </EditForm>
+
     </div>
 }
 
 @if (isLoading)
 {
     <div class="text-center my-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2">Se încarcă lista de mașini...</p>
+
+        <div class="spinner-border text-primary"
+             role="status">
+        </div>
+
+        <p class="mt-2">
+            Se încarcă lista de mașini...
+        </p>
+
     </div>
 }
 else if (cars == null || !cars.Any())
@@ -122,80 +176,382 @@ else if (cars == null || !cars.Any())
 else
 {
     <div class="table-responsive shadow-sm rounded">
+
         <table class="table table-hover align-middle mb-0">
+
             <thead class="table-light">
                 <tr>
                     <th>Marcă & Model</th>
                     <th>An</th>
                     <th>Culoare</th>
                     <th>Rulaj</th>
-                    <th>Motor</th>
+                    <th>Capacitate Motor</th>
+                    <th>Combustibil</th>
                     <th>Cutie</th>
                     <th>Tracțiune</th>
                     <th class="text-end">Acțiuni</th>
                 </tr>
             </thead>
+
             <tbody>
+
                 @foreach (var car in cars)
                 {
-                    <tr>
-                        <td class="fw-bold">@car.Brand @car.Model</td>
-                        <td>@car.Year</td>
-                        <td>@car.Color</td>
-                        <td>@car.Mileage.ToString("N0") km</td>
-                        <td>@car.EngineCapacity cm³ (@car.FuelType)</td>
-                        <td>@car.Transmission</td>
-                        <td>@car.TractionType</td>
-                        <td class="text-end">
-                            <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteCar(car.Id)">Șterge</button>
-                        </td>
-                    </tr>
+                    @if (editingCarId == car.Id)
+                    {
+                        <tr>
+                            <td colspan="9">
+
+                                <EditForm Model="@editModel"
+                                          OnValidSubmit="HandleUpdateCar">
+
+                                    <DataAnnotationsValidator />
+
+                                    <div class="p-3">
+
+                                        <h6 class="mb-3">
+                                            Editează:
+                                            @car.Brand @car.Model
+                                        </h6>
+
+                                        <div class="row">
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    Marcă
+                                                </label>
+
+                                                <InputText class="form-control"
+                                                           @bind-Value="editModel.Brand" />
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    Model
+                                                </label>
+
+                                                <InputText class="form-control"
+                                                           @bind-Value="editModel.Model" />
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    An fabricație
+                                                </label>
+
+                                                <InputNumber class="form-control"
+                                                             @bind-Value="editModel.Year" />
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    Culoare
+                                                </label>
+
+                                                <InputText class="form-control"
+                                                           @bind-Value="editModel.Color" />
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    Rulaj (km)
+                                                </label>
+
+                                                <InputNumber class="form-control"
+                                                             @bind-Value="editModel.Mileage" />
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">
+                                                    Capacitate motor (cm³)
+                                                </label>
+
+                                                <InputNumber class="form-control"
+                                                             @bind-Value="editModel.EngineCapacity" />
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-md-4 mb-3">
+
+                                                <label class="form-label">
+                                                    Combustibil
+                                                </label>
+
+                                                <InputSelect class="form-select"
+                                                             @bind-Value="editModel.FuelType">
+
+                                                    @foreach (var fuel in Enum.GetValues<FuelType>())
+                                                    {
+                                                        <option value="@fuel">
+                                                            @fuel
+                                                        </option>
+                                                    }
+
+                                                </InputSelect>
+
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+
+                                                <label class="form-label">
+                                                    Transmisie
+                                                </label>
+
+                                                <InputSelect class="form-select"
+                                                             @bind-Value="editModel.Transmission">
+
+                                                    @foreach (var transmission in Enum.GetValues<Transmission>())
+                                                    {
+                                                        <option value="@transmission">
+                                                            @transmission
+                                                        </option>
+                                                    }
+
+                                                </InputSelect>
+
+                                            </div>
+
+                                            <div class="col-md-4 mb-3">
+
+                                                <label class="form-label">
+                                                    Tracțiune
+                                                </label>
+
+                                                <InputSelect class="form-select"
+                                                             @bind-Value="editModel.TractionType">
+
+                                                    @foreach (var traction in Enum.GetValues<TractionType>())
+                                                    {
+                                                        <option value="@traction">
+                                                            @traction
+                                                        </option>
+                                                    }
+
+                                                </InputSelect>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+
+                                            <button type="submit"
+                                                    class="btn btn-success btn-sm"
+                                                    disabled="@isSubmitting">
+
+                                                @if (isSubmitting)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-2"
+                                                          role="status">
+                                                    </span>
+
+                                                    <span>Se salvează...</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Salvează</span>
+                                                }
+
+                                            </button>
+
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    @onclick="CancelEdit">
+                                                Anulează
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </EditForm>
+
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td class="fw-bold">
+                                @car.Brand @car.Model
+                            </td>
+
+                            <td>
+                                @car.Year
+                            </td>
+
+                            <td>
+                                @car.Color
+                            </td>
+
+                            <td>
+                                @car.Mileage.ToString("N0") km
+                            </td>
+
+                            <td>
+                                @car.EngineCapacity cm³
+                            </td>
+
+                            <td>
+                                @car.FuelType
+                            </td>
+
+                            <td>
+                                @car.Transmission
+                            </td>
+
+                            <td>
+                                @car.TractionType
+                            </td>
+
+                            <td class="text-end">
+
+                                <button class="btn btn-outline-primary btn-sm me-1"
+                                        @onclick="() => StartEdit(car)">
+                                    Editează
+                                </button>
+
+                                <button class="btn btn-outline-danger btn-sm"
+                                        @onclick="() => DeleteCar(car.Id)">
+                                    Șterge
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    }
                 }
+
             </tbody>
+
         </table>
+
     </div>
 }
 
-@code {
+@code
+{
     private List<CarDto>? cars;
+
     private CreateCarRequest createModel = new();
+
+    private UpdateCarRequest editModel = new();
+
+    private Guid? editingCarId;
+
     private bool isLoading = true;
+
     private bool showCreateForm = false;
+
     private bool isSubmitting = false;
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadCars();
     }
 
+
     private async Task LoadCars()
     {
         isLoading = true;
+
         cars = await CarService.GetMyCarsAsync();
+
         isLoading = false;
     }
+
 
     private void ToggleCreateForm()
     {
         showCreateForm = !showCreateForm;
     }
 
+
     private async Task HandleCreateCar()
     {
         isSubmitting = true;
+
         var carId = await CarService.CreateCarAsync(createModel);
+
         if (carId.HasValue)
         {
             showCreateForm = false;
-            createModel = new();
+
+            createModel = new CreateCarRequest();
+
             await LoadCars();
         }
+
         isSubmitting = false;
     }
+
+
+    private void StartEdit(CarDto car)
+    {
+        editingCarId = car.Id;
+
+        editModel = new UpdateCarRequest
+        {
+            Brand = car.Brand,
+            Model = car.Model,
+            Year = car.Year,
+            Color = car.Color,
+            Mileage = car.Mileage,
+            FuelType = car.FuelType,
+            EngineCapacity = car.EngineCapacity,
+            Transmission = car.Transmission,
+            TractionType = car.TractionType
+        };
+    }
+
+
+    private void CancelEdit()
+    {
+        editingCarId = null;
+
+        editModel = new UpdateCarRequest();
+    }
+
+
+    private async Task HandleUpdateCar()
+    {
+        if (!editingCarId.HasValue)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+
+        var success = await CarService.UpdateCarAsync(
+            editingCarId.Value,
+            editModel);
+
+        if (success)
+        {
+            editingCarId = null;
+
+            editModel = new UpdateCarRequest();
+
+            await LoadCars();
+        }
+
+        isSubmitting = false;
+    }
+
 
     private async Task DeleteCar(Guid id)
     {
         var success = await CarService.DeleteCarAsync(id);
+
         if (success)
         {
             await LoadCars();

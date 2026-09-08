@@ -36,13 +36,21 @@ namespace CarRent.Application.Features.Ads.Queries.GetMyAds
                     Price = a.Price,
                     AdType = a.AdType,
                     TractionType = a.Car.TractionType,
+                    CarBrand = a.Car.Brand,
+                    CarModel = a.Car.Model,
+                    CarYear = a.Car.Year,
+                    CarColor = a.Car.Color,
+                    CarMileage = a.Car.Mileage,
+                    CarFuelType = a.Car.FuelType,
+                    CarEngineCapacity = a.Car.EngineCapacity,
+                    CarTransmission = a.Car.Transmission,
                     IsActive = a.IsActive,
                     Views = a.Views,
                     CreatedAt = a.CreatedAt,
                     MainImageUrl = a.AdImages
-                        .OrderBy(i => i.DisplayOrder)
-                        .Select(i => i.ImageUrl)
-                        .FirstOrDefault()
+                    .OrderBy(i => i.DisplayOrder)
+                    .Select(i => i.ImageUrl)
+                    .FirstOrDefault()
                 })
                 .ToListAsync(cancellationToken);
         }

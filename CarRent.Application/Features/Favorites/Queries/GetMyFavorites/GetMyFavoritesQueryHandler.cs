@@ -43,13 +43,21 @@ namespace CarRent.Application.Features.Favorites.Queries.GetMyFavorites
                     Price = f.Ad.Price,
                     AdType = f.Ad.AdType,
                     TractionType = f.Ad.Car.TractionType,
+                    CarBrand = f.Ad.Car.Brand,
+                    CarModel = f.Ad.Car.Model,
+                    CarYear = f.Ad.Car.Year,
+                    CarColor = f.Ad.Car.Color,
+                    CarMileage = f.Ad.Car.Mileage,
+                    CarFuelType = f.Ad.Car.FuelType,
+                    CarEngineCapacity = f.Ad.Car.EngineCapacity,
+                    CarTransmission = f.Ad.Car.Transmission,
                     IsActive = f.Ad.IsActive,
                     Views = f.Ad.Views,
                     CreatedAt = f.Ad.CreatedAt,
                     MainImageUrl = f.Ad.AdImages
-                        .OrderBy(i => i.DisplayOrder)
-                        .Select(i => i.ImageUrl)
-                        .FirstOrDefault()
+                    .OrderBy(i => i.DisplayOrder)
+                    .Select(i => i.ImageUrl)
+                    .FirstOrDefault()
                 })
                 .ToListAsync(cancellationToken);
         }

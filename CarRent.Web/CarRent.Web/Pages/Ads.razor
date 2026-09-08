@@ -1,5 +1,6 @@
 ﻿@page "/ads"
 @using CarRent.Web.Models.Ads
+@using CarRent.Web.Models.Cars
 @using CarRent.Web.Models.Common
 @inject AdService AdService
 @inject NavigationManager NavigationManager
@@ -14,16 +15,77 @@
 </div>
 
 <!-- Filtre AdType -->
-<div class="btn-group mb-4" role="group" aria-label="Filtru tip anunț">
-    <button type="button" class="btn @(selectedAdType == null ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(null)">
+<div class="btn-group mb-3" role="group" aria-label="Filtru tip anunț">
+    <button type="button" class="btn @(filter.AdType == null ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(null)">
         Toate
     </button>
-    <button type="button" class="btn @(selectedAdType == AdType.Sale ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(AdType.Sale)">
+    <button type="button" class="btn @(filter.AdType == AdType.Sale ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(AdType.Sale)">
         🚗 De vânzare
     </button>
-    <button type="button" class="btn @(selectedAdType == AdType.Rent ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(AdType.Rent)">
+    <button type="button" class="btn @(filter.AdType == AdType.Rent ? "btn-primary" : "btn-outline-primary")" @onclick="() => FilterByAdType(AdType.Rent)">
         🔑 De închiriat
     </button>
+</div>
+
+<!-- Bară de filtrare avansată -->
+<div class="card shadow-sm border-0 mb-4 p-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Marcă</label>
+            <input class="form-control form-control-sm" @bind="filter.Brand" @bind:event="oninput" placeholder="ex: BMW" />
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Model</label>
+            <input class="form-control form-control-sm" @bind="filter.Model" @bind:event="oninput" placeholder="ex: M5" />
+        </div>
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">An min</label>
+            <input type="number" class="form-control form-control-sm" @bind="filter.MinYear" />
+        </div>
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">An max</label>
+            <input type="number" class="form-control form-control-sm" @bind="filter.MaxYear" />
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Combustibil</label>
+            <select class="form-select form-select-sm" @bind="filter.FuelType">
+                <option value="">Toate</option>
+                @foreach (var fuel in Enum.GetValues<FuelType>())
+                {
+                    <option value="@fuel">@fuel</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Cutie</label>
+            <select class="form-select form-select-sm" @bind="filter.Transmission">
+                <option value="">Toate</option>
+                @foreach (var trans in Enum.GetValues<Transmission>())
+                {
+                    <option value="@trans">@trans</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Tracțiune</label>
+            <select class="form-select form-select-sm" @bind="filter.TractionType">
+                <option value="">Toate</option>
+                @foreach (var trac in Enum.GetValues<TractionType>())
+                {
+                    <option value="@trac">@trac</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-md-2 mt-2">
+            <button class="btn btn-primary btn-sm w-100" @onclick="ApplyFilters">Caută</button>
+        </div>
+        @if (filter.HasAnyFilter)
+        {
+            <div class="col-6 col-md-2 mt-2">
+                <button class="btn btn-outline-secondary btn-sm w-100" @onclick="ResetFilters">Resetează filtrele</button>
+            </div>
+        }
+    </div>
 </div>
 
 @if (isLoading)
@@ -65,6 +127,7 @@ else
 
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-truncate">@ad.Title</h5>
+                        <p class="small text-muted mb-1">@ad.CarBrand @ad.CarModel &middot; @ad.CarYear &middot; @ad.CarMileage.ToString("N0") km</p>
                         <p class="card-text text-muted text-truncate">@ad.Description</p>
 
                         <div class="mt-auto d-flex justify-content-between align-items-center">
@@ -84,7 +147,7 @@ else
     private PagedResult<AdDto>? pagedResult;
     private bool isLoading = true;
     private bool hasError = false;
-    private AdType? selectedAdType = null;
+    private AdFilter filter = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,8 +156,20 @@ else
 
     private async Task FilterByAdType(AdType? adType)
     {
-        if (selectedAdType == adType) return;
-        selectedAdType = adType;
+        if (filter.AdType == adType) return;
+        filter.AdType = adType;
+        await LoadAds();
+    }
+
+    private async Task ApplyFilters()
+    {
+        await LoadAds();
+    }
+
+    private async Task ResetFilters()
+    {
+        var keepAdType = filter.AdType;
+        filter = new AdFilter { AdType = keepAdType };
         await LoadAds();
     }
 
@@ -103,7 +178,7 @@ else
         isLoading = true;
         hasError = false;
 
-        pagedResult = await AdService.GetAdsAsync(1, 10, selectedAdType);
+        pagedResult = await AdService.GetAdsAsync(1, 20, filter);
 
         if (pagedResult == null)
         {
